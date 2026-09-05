@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react"; // Added useEffect
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AuthPanel from "../components/AuthPanel";
 import { useAuth } from "../context/AuthContent";
@@ -62,7 +62,7 @@ export default function LoginPage({
       }
 
       if (user.role === "ADMIN") {
-        router.replace("/admin");
+        router.replace("/AdminMaster");
         return;
       }
 
@@ -70,12 +70,12 @@ export default function LoginPage({
         user.role === "INSTRUCTOR" &&
         user.status === "APPROVED"
       ) {
-        router.replace("/instructor/dashboard");
+        router.replace("/Instructor/Dashboard");
         return;
       }
 
       if (user.role === "STUDENT") {
-        router.replace("/learner/Dashboard");
+        router.replace("/Learner/Dashboard");
         return;
       }
 
