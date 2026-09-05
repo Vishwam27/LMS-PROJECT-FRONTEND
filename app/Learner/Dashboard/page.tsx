@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CldImage } from "next-cloudinary";
+import Sidebar from "../../components/learner/SideBar";
 
 type User = {
   id: string;
@@ -203,6 +204,7 @@ export default function LearnerDashboard() {
         fontFamily: "Inter, sans-serif",
       }}
     >
+      <Sidebar />
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
 
