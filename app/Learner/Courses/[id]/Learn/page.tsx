@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -255,7 +256,7 @@ export default function LearnPage() {
 
           <button
             onClick={() =>
-              router.push("/learner/my-courses")
+              router.push("/Learner/My-Courses")
             }
             className="mt-4 rounded-lg bg-black px-5 py-2.5 text-sm text-white"
           >
@@ -399,7 +400,7 @@ export default function LearnPage() {
 
     // Final lesson
     if (isLastLesson) {
-      router.push("/learner/my-courses");
+      router.push("/Learner/My-Courses");
       return;
     }
 
@@ -512,45 +513,73 @@ export default function LearnPage() {
 
         {/* TOP HEADER */}
         <header className="border-b border-gray-200 bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+  <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
 
-            {/* <button
-              onClick={() => router.back()}
-              className="mb-4 text-sm font-medium text-gray-500 transition hover:text-gray-900"
-            >
-              ← Back to course
-            </button> */}
+    {/* ================================
+        BACK BUTTON
+    ================================= */}
 
-            <div className="flex items-start justify-between gap-4">
+    <button
+      type="button"
+      onClick={() => router.back()}
+      className="
+        mb-4
+        inline-flex
+        items-center
+        gap-2
+        rounded-lg
+        px-2
+        py-1.5
+        text-sm
+        font-medium
+        text-gray-500
+        transition-all
+        duration-200
+        hover:bg-gray-100
+        hover:text-gray-900
+        active:scale-95
+      "
+    >
+      <ArrowLeft size={17} />
 
-              <div className="min-w-0">
-                <p className="text-sm text-gray-500">
-                  Lesson {currentLesson + 1} of{" "}
-                  {lessons.length}
-                </p>
+      <span>Back</span>
+    </button>
 
-                <h2 className="mt-1 wrap-break-word text-xl font-bold leading-7 text-gray-900 sm:text-2xl">
-                  {lesson.title}
-                </h2>
-              </div>
+    {/* ================================
+        LESSON HEADER
+    ================================= */}
 
-              <div className="hidden shrink-0 text-right sm:block">
-                <p className="text-sm font-medium text-gray-600">
-                  {coursePosition}% through course
-                </p>
+    <div className="flex items-start justify-between gap-4">
 
-                <div className="mt-2 h-2 w-24 overflow-hidden rounded-full bg-gray-100">
-                  <div
-                    className="h-full rounded-full bg-purple-600 transition-all duration-300"
-                    style={{
-                      width: `${coursePosition}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
+      <div className="min-w-0">
+        <p className="text-sm text-gray-500">
+          Lesson {currentLesson + 1} of{" "}
+          {lessons.length}
+        </p>
+
+        <h2 className="mt-1 wrap-break-word text-xl font-bold leading-7 text-gray-900 sm:text-2xl">
+          {lesson.title}
+        </h2>
+      </div>
+
+      <div className="hidden shrink-0 text-right sm:block">
+        <p className="text-sm font-medium text-gray-600">
+          {coursePosition}% through course
+        </p>
+
+        <div className="mt-2 h-2 w-24 overflow-hidden rounded-full bg-gray-100">
+          <div
+            className="h-full rounded-full bg-purple-600 transition-all duration-300"
+            style={{
+              width: `${coursePosition}%`,
+            }}
+          />
+        </div>
+      </div>
+
+    </div>
+  </div>
+</header>
 
         {/* MOBILE / TABLET NAVIGATION */}
         <div className="border-b border-gray-200 bg-white lg:hidden">

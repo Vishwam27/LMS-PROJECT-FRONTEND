@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/learner/SideBar";
 
-
 type User = {
   id: string;
   name: string;
@@ -27,9 +26,10 @@ export default function SettingsPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // =========================
-  // Get logged-in user
-  // =========================
+  // =========================================================
+  // GET LOGGED-IN USER
+  // =========================================================
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -72,9 +72,10 @@ export default function SettingsPage() {
     fetchUser();
   }, [router]);
 
-  // =========================
-  // Update profile
-  // =========================
+  // =========================================================
+  // UPDATE PROFILE
+  // =========================================================
+
   const handleSave = async () => {
     const token = localStorage.getItem("token");
 
@@ -111,17 +112,20 @@ export default function SettingsPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Unable to update profile.");
+        setError(
+          data.message || "Unable to update profile."
+        );
         return;
       }
 
-      // Update UI with database response
       setUser(data.user);
       setName(data.user.name || "");
       setBio(data.user.bio || "");
 
-      // Keep localStorage user data updated
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem(
+        "user",
+        JSON.stringify(data.user)
+      );
 
       setMessage("Profile updated successfully.");
     } catch (error) {
@@ -132,9 +136,10 @@ export default function SettingsPage() {
     }
   };
 
-  // =========================
-  // Logout
-  // =========================
+  // =========================================================
+  // LOGOUT
+  // =========================================================
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -142,15 +147,44 @@ export default function SettingsPage() {
     router.replace("/");
   };
 
-  // =========================
-  // Loading
-  // =========================
+  // =========================================================
+  // LOADING
+  // =========================================================
+
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
-        <p className="text-sm text-slate-500">
-          Loading settings...
-        </p>
+      <div
+        className="
+          flex
+          min-h-screen
+          w-full
+          flex-col
+          bg-slate-50
+          lg:flex-row
+        "
+        style={{
+          fontFamily: "Inter, sans-serif",
+        }}
+      >
+        <Sidebar />
+
+        <main
+          className="
+            flex
+            min-h-screen
+            min-w-0
+            flex-1
+            items-center
+            justify-center
+            px-4
+            pt-18
+            lg:pt-0
+          "
+        >
+          <p className="text-sm text-slate-500">
+            Loading settings...
+          </p>
+        </main>
       </div>
     );
   }
@@ -159,28 +193,92 @@ export default function SettingsPage() {
     return null;
   }
 
+  // =========================================================
+  // INITIALS
+  // =========================================================
+
   const initials = user.name
     ? user.name
-        .split(" ")
+        .split(/\s+/)
+        .filter(Boolean)
         .map((word) => word[0])
         .join("")
         .slice(0, 2)
         .toUpperCase()
     : "U";
 
+  // =========================================================
+  // RENDER
+  // =========================================================
+
   return (
     <div
-      className="flex h-screen flex-col overflow-hidden bg-slate-50 lg:flex-row"
-      style={{ fontFamily: "Inter, sans-serif" }}
+      className="
+        flex
+        min-h-screen
+        w-full
+        flex-col
+        bg-slate-50
+        lg:h-screen
+        lg:flex-row
+        lg:overflow-hidden
+      "
+      style={{
+        fontFamily: "Inter, sans-serif",
+      }}
     >
+      {/* =====================================================
+          SIDEBAR
+      ====================================================== */}
+
       <Sidebar />
 
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* Header */}
-        <header className="shrink-0 border-b border-slate-200 bg-white px-6 py-5 lg:px-8">
+      {/* =====================================================
+          MAIN AREA
+
+          Mobile:
+          72px top space for fixed Sidebar topbar.
+
+          Desktop:
+          no top padding.
+      ====================================================== */}
+
+      <div
+        className="
+          flex
+          min-w-0
+          flex-1
+          flex-col
+          pt-18
+          lg:min-h-0
+          lg:pt-0
+        "
+      >
+        {/* ===================================================
+            HEADER
+        ==================================================== */}
+
+        <header
+          className="
+            shrink-0
+            border-b
+            border-slate-200
+            bg-white
+            px-5
+            py-5
+            sm:px-6
+            lg:px-8
+          "
+        >
           <h1
-            className="text-xl font-bold text-[#0f1428]"
-            style={{ fontFamily: "Outfit, sans-serif" }}
+            className="
+              text-xl
+              font-bold
+              text-[#0f1428]
+            "
+            style={{
+              fontFamily: "Outfit, sans-serif",
+            }}
           >
             Settings
           </h1>
@@ -190,15 +288,55 @@ export default function SettingsPage() {
           </p>
         </header>
 
-        {/* Main */}
-        <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-5xl">
-            <div className="grid gap-6 lg:grid-cols-[210px_1fr]">
+        {/* ===================================================
+            MAIN SCROLL AREA
+        ==================================================== */}
 
-              {/* Settings navigation */}
+        <main
+          className="
+            min-h-0
+            flex-1
+            overflow-y-auto
+            overflow-x-hidden
+            px-4
+            py-6
+            sm:px-6
+            lg:px-8
+          "
+        >
+          <div className="mx-auto max-w-5xl">
+
+            <div
+              className="
+                grid
+                gap-6
+                lg:grid-cols-[210px_1fr]
+              "
+            >
+              {/* =============================================
+                  SETTINGS NAVIGATION
+              ============================================== */}
+
               <aside>
-                <div className="rounded-2xl border border-slate-200 bg-white p-2">
-                  <div className="rounded-xl border border-purple-200 bg-purple-50 px-4 py-3">
+                <div
+                  className="
+                    rounded-2xl
+                    border
+                    border-slate-200
+                    bg-white
+                    p-2
+                  "
+                >
+                  <div
+                    className="
+                      rounded-xl
+                      border
+                      border-purple-200
+                      bg-purple-50
+                      px-4
+                      py-3
+                    "
+                  >
                     <div className="flex items-center gap-3">
                       <span className="text-lg">
                         👤
@@ -212,12 +350,29 @@ export default function SettingsPage() {
                 </div>
               </aside>
 
-              {/* Profile */}
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+              {/* =============================================
+                  PROFILE
+              ============================================== */}
 
+              <section
+                className="
+                  rounded-2xl
+                  border
+                  border-slate-200
+                  bg-white
+                  p-5
+                  sm:p-6
+                "
+              >
                 <h2
-                  className="text-base font-bold text-[#0f1428]"
-                  style={{ fontFamily: "Outfit, sans-serif" }}
+                  className="
+                    text-base
+                    font-bold
+                    text-[#0f1428]
+                  "
+                  style={{
+                    fontFamily: "Outfit, sans-serif",
+                  }}
                 >
                   Profile
                 </h2>
@@ -226,27 +381,63 @@ export default function SettingsPage() {
                   Update your personal information.
                 </p>
 
-                {/* Profile header */}
-                <div className="mt-6 flex flex-col gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
+                {/* =========================================
+                    PROFILE HEADER
+                ========================================== */}
 
+                <div
+                  className="
+                    mt-6
+                    flex
+                    flex-col
+                    gap-4
+                    border-b
+                    border-slate-100
+                    pb-6
+                    sm:flex-row
+                    sm:items-center
+                  "
+                >
                   {user.avatarUrl ? (
                     <img
                       src={user.avatarUrl}
                       alt={user.name}
-                      className="h-20 w-20 rounded-2xl object-cover"
+                      className="
+                        h-20
+                        w-20
+                        shrink-0
+                        rounded-2xl
+                        object-cover
+                      "
                     />
                   ) : (
-                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#6c3bff] to-[#9b6cff] text-2xl font-bold text-white">
+                    <div
+                      className="
+                        flex
+                        h-20
+                        w-20
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-2xl
+                        bg-linear-to-br
+                        from-[#6c3bff]
+                        to-[#9b6cff]
+                        text-2xl
+                        font-bold
+                        text-white
+                      "
+                    >
                       {initials}
                     </div>
                   )}
 
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="text-lg font-semibold text-[#0f1428]">
                       {user.name}
                     </h3>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 break-all text-sm text-slate-500">
                       {user.email}
                     </p>
 
@@ -256,10 +447,14 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                {/* Form */}
+                {/* =========================================
+                    FORM
+                ========================================== */}
+
                 <div className="mt-6 space-y-5">
 
                   {/* Name */}
+
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">
                       Name
@@ -268,13 +463,31 @@ export default function SettingsPage() {
                     <input
                       type="text"
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-[#6c3bff] focus:ring-2 focus:ring-purple-100"
+                      onChange={(event) =>
+                        setName(event.target.value)
+                      }
+                      className="
+                        w-full
+                        rounded-xl
+                        border
+                        border-slate-200
+                        bg-white
+                        px-4
+                        py-3
+                        text-sm
+                        text-slate-700
+                        outline-none
+                        transition
+                        focus:border-[#6c3bff]
+                        focus:ring-2
+                        focus:ring-purple-100
+                      "
                       placeholder="Enter your name"
                     />
                   </div>
 
                   {/* Email */}
+
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">
                       Email address
@@ -284,7 +497,18 @@ export default function SettingsPage() {
                       type="email"
                       value={user.email}
                       disabled
-                      className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500"
+                      className="
+                        w-full
+                        cursor-not-allowed
+                        rounded-xl
+                        border
+                        border-slate-200
+                        bg-slate-50
+                        px-4
+                        py-3
+                        text-sm
+                        text-slate-500
+                      "
                     />
 
                     <p className="mt-1.5 text-xs text-slate-400">
@@ -293,17 +517,30 @@ export default function SettingsPage() {
                   </div>
 
                   {/* Role */}
+
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">
                       Role
                     </label>
 
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                    <div
+                      className="
+                        rounded-xl
+                        border
+                        border-slate-200
+                        bg-slate-50
+                        px-4
+                        py-3
+                        text-sm
+                        text-slate-600
+                      "
+                    >
                       {user.role}
                     </div>
                   </div>
 
                   {/* Bio */}
+
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">
                       Bio
@@ -311,11 +548,30 @@ export default function SettingsPage() {
 
                     <textarea
                       value={bio}
-                      onChange={(e) => setBio(e.target.value)}
+                      onChange={(event) =>
+                        setBio(event.target.value)
+                      }
                       rows={4}
                       maxLength={160}
                       placeholder="Tell us a little about yourself..."
-                      className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700 outline-none transition focus:border-[#6c3bff] focus:ring-2 focus:ring-purple-100"
+                      className="
+                        w-full
+                        resize-none
+                        rounded-xl
+                        border
+                        border-slate-200
+                        bg-white
+                        px-4
+                        py-3
+                        text-sm
+                        leading-6
+                        text-slate-700
+                        outline-none
+                        transition
+                        focus:border-[#6c3bff]
+                        focus:ring-2
+                        focus:ring-purple-100
+                      "
                     />
 
                     <div className="mt-1 text-right text-xs text-slate-400">
@@ -324,43 +580,127 @@ export default function SettingsPage() {
                   </div>
 
                   {/* User ID */}
+
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">
                       User ID
                     </label>
 
-                    <div className="break-all rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-500">
+                    <div
+                      className="
+                        break-all
+                        rounded-xl
+                        border
+                        border-slate-200
+                        bg-slate-50
+                        px-4
+                        py-3
+                        font-mono
+                        text-xs
+                        text-slate-500
+                      "
+                    >
                       {user.id}
                     </div>
                   </div>
                 </div>
 
-                {/* Messages */}
+                {/* =========================================
+                    MESSAGES
+                ========================================== */}
+
                 {error && (
-                  <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  <div
+                    className="
+                      mt-5
+                      rounded-xl
+                      border
+                      border-red-200
+                      bg-red-50
+                      px-4
+                      py-3
+                      text-sm
+                      text-red-600
+                    "
+                  >
                     {error}
                   </div>
                 )}
 
                 {message && (
-                  <div className="mt-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600">
+                  <div
+                    className="
+                      mt-5
+                      rounded-xl
+                      border
+                      border-green-200
+                      bg-green-50
+                      px-4
+                      py-3
+                      text-sm
+                      text-green-600
+                    "
+                  >
                     {message}
                   </div>
                 )}
 
-                {/* Save */}
-                <div className="mt-6 flex justify-end border-t border-slate-100 pt-6">
+                {/* =========================================
+                    SAVE
+                ========================================== */}
+
+                <div
+                  className="
+                    mt-6
+                    flex
+                    border-t
+                    border-slate-100
+                    pt-6
+                  "
+                >
                   <button
+                    type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="rounded-xl bg-linear-to-r from-[#6c3bff] to-[#8a5fff] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-purple-200 transition hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+                    className="
+                      w-full
+                      rounded-xl
+                      bg-linear-to-r
+                      from-[#6c3bff]
+                      to-[#8a5fff]
+                      px-6
+                      py-3
+                      text-sm
+                      font-semibold
+                      text-white
+                      shadow-md
+                      shadow-purple-200
+                      transition
+                      hover:shadow-lg
+                      disabled:cursor-not-allowed
+                      disabled:opacity-60
+                      sm:ml-auto
+                      sm:w-auto
+                    "
                   >
-                    {saving ? "Saving..." : "Save Changes"}
+                    {saving
+                      ? "Saving..."
+                      : "Save Changes"}
                   </button>
                 </div>
 
-                {/* Account */}
-                <div className="mt-8 border-t border-slate-100 pt-6">
+                {/* =========================================
+                    ACCOUNT
+                ========================================== */}
+
+                <div
+                  className="
+                    mt-8
+                    border-t
+                    border-slate-100
+                    pt-6
+                  "
+                >
                   <h3 className="text-sm font-semibold text-[#0f1428]">
                     Account
                   </h3>
@@ -370,8 +710,24 @@ export default function SettingsPage() {
                   </p>
 
                   <button
+                    type="button"
                     onClick={handleLogout}
-                    className="mt-4 rounded-xl border border-red-200 bg-white px-5 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-50"
+                    className="
+                      mt-4
+                      w-full
+                      rounded-xl
+                      border
+                      border-red-200
+                      bg-white
+                      px-5
+                      py-2.5
+                      text-sm
+                      font-semibold
+                      text-red-500
+                      transition
+                      hover:bg-red-50
+                      sm:w-auto
+                    "
                   >
                     Sign Out
                   </button>

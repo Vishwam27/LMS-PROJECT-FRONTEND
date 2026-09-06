@@ -3,7 +3,8 @@
 import { CldImage } from "next-cloudinary";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Sidebar from "../../../../components/learner/SideBar";
+import Sidebar from "../../../components/learner/SideBar";
+
 
 interface Course {
   id: string;
@@ -176,7 +177,7 @@ export default function CourseDetails() {
       // Already enrolled
       if (response.status === 409) {
         setIsEnrolled(true);
-        router.push("/learner/my-courses");
+        router.push("/Learner/My-Courses");
         return;
       }
 
@@ -190,7 +191,7 @@ export default function CourseDetails() {
       setIsEnrolled(true);
 
       // Send learner to My Courses
-      router.push("/learner/my-courses");
+      router.push("/Learner/My-Courses");
     } catch (error) {
       console.error("Enrollment error:", error);
 
@@ -368,7 +369,7 @@ export default function CourseDetails() {
                     <button
                       onClick={() =>
                         router.push(
-                          `/learner/courses/${course.id}/learn`
+                          `/Learner/Courses/${course.id}/Learn`
                         )
                       }
                       className="w-full rounded-xl bg-purple-600 px-5 py-3 font-semibold text-white transition hover:bg-purple-700"

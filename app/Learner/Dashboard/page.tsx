@@ -197,18 +197,47 @@ export default function LearnerDashboard() {
   // =========================================================
 
   return (
-    <div
-      className="flex h-screen flex-col overflow-hidden lg:flex-row"
-      style={{
-        background: "#f1f5f9",
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
-      <Sidebar />
-      {/* Main */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+  <div
+    className="
+      flex
+      min-h-screen
+      w-full
+      flex-col
+      bg-[#f1f5f9]
+      lg:h-screen
+      lg:flex-row
+      lg:overflow-hidden
+    "
+    style={{
+      fontFamily: "Inter, sans-serif",
+    }}
+  >
+    <Sidebar />
 
-        <main className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8">
+    {/* Main content */}
+    <div
+      className="
+        flex
+        min-w-0
+        flex-1
+        flex-col
+        pt-18
+        lg:min-h-0
+        lg:pt-0
+      "
+    >
+      <main
+        className="
+          min-h-0
+          flex-1
+          overflow-y-auto
+          overflow-x-hidden
+          px-4
+          py-5
+          sm:px-6
+          lg:px-8
+        "
+      >
           <div className="mx-auto max-w-7xl space-y-6">
 
             {/* =================================================
