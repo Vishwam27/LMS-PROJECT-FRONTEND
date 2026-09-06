@@ -320,7 +320,7 @@ export default function InstructorDashboardPage() {
                <div className="flex items-center gap-2">  
                 {/* View Learner Side */}
  <button
-  onClick={() => router.push("/learner/dashboard")}
+  onClick={() => router.push("/Learner/Dashboard")}
   className="hidden rounded-xl border border-blue-200 px-4 py-2.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 sm:block"
 >
   Learner View →
