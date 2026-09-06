@@ -106,7 +106,7 @@ export default function Sidebar() {
           top-0
           z-40
           flex
-          h-[72px]
+          h-18
           items-center
           justify-between
           border-b
@@ -203,15 +203,15 @@ export default function Sidebar() {
           fixed
           inset-y-0
           left-0
-          z-[60]
+          z-60
           flex
           w-[78vw]
-          max-w-[360px]
+          max-w-90
           flex-col
           border-r
           transition-transform
           duration-300
-          ease-[cubic-bezier(.4,0,.2,1)]
+          ease-in-out
           lg:hidden
 
           ${
@@ -237,7 +237,7 @@ export default function Sidebar() {
         <div
           className="
             flex
-            h-[84px]
+            h-21
             shrink-0
             items-center
             justify-between
@@ -310,7 +310,7 @@ export default function Sidebar() {
                     className={`
                       relative
                       flex
-                      h-[58px]
+                      h-14.5
                       w-full
                       items-center
                       gap-4
@@ -348,7 +348,7 @@ export default function Sidebar() {
                           left-0
                           top-1/2
                           h-7
-                          w-[3px]
+                          w-0.75
                           -translate-y-1/2
                           rounded-r-full
                         "
@@ -624,7 +624,7 @@ export default function Sidebar() {
                             absolute
                             left-0
                             h-5
-                            w-[3px]
+                            w-0.75
                             rounded-r-full
                           "
                           style={{
