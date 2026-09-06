@@ -261,14 +261,6 @@ export default function AdminPage() {
               ADMIN
             </span>
 
-            {/* <button
-              onClick={() =>
-                router.push("/learner/Dashboard")
-              }
-              className="hidden rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 sm:block"
-            >
-              Learner View
-            </button> */}
 
             <button
               onClick={handleLogout}
@@ -392,7 +384,7 @@ export default function AdminPage() {
 
             <button
               onClick={() =>
-                router.push("/AdminMater/Courses")
+                router.push("/AdminMaster/Courses")
               }
               className="rounded-2xl border border-slate-200 bg-white p-6 text-left transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md"
             >
