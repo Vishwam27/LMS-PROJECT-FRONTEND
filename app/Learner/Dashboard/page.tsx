@@ -525,6 +525,99 @@ export default function LearnerDashboard() {
                   </div>
                 )}
               </div>
+               <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div className="mb-5">
+                  <h2
+                    className="text-base font-bold text-[#0f1428]"
+                    style={{
+                      fontFamily: "Outfit, sans-serif",
+                    }}
+                  >
+                    Weekly Activity
+                  </h2>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    Your learning activity this week.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-7 gap-2">
+                  {weeklyActivity.map(
+                    (item) => (
+                      <div
+                        key={item.date}
+                        className="flex flex-col items-center"
+                      >
+                        <span className="text-[10px] font-medium text-slate-400">
+                          {item.day}
+                        </span>
+
+                        <div
+                          className={`mt-2 flex h-9 w-9 items-center justify-center rounded-xl border ${
+                            item.active
+                              ? "border-purple-200 bg-purple-50"
+                              : "border-slate-200 bg-slate-50"
+                          } ${
+                            item.isToday
+                              ? "ring-2 ring-purple-100"
+                              : ""
+                          }`}
+                        >
+                          {item.active ? (
+                            <span className="text-sm font-bold text-[#6c3bff]">
+                              ✓
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-300">
+                              —
+                            </span>
+                          )}
+                        </div>
+
+                        <span
+                          className={`mt-1 text-[10px] ${
+                            item.isToday
+                              ? "font-bold text-[#6c3bff]"
+                              : "text-slate-400"
+                          }`}
+                        >
+                          {new Date(
+                            `${item.date}T00:00:00`
+                          ).getDate()}
+                        </span>
+
+                        {item.isToday && (
+                          <span className="mt-1 text-[9px] font-semibold text-[#6c3bff]">
+                            Today
+                          </span>
+                        )}
+                      </div>
+                    )
+                  )}
+                </div>
+
+                <div className="mt-5 rounded-xl bg-slate-50 p-4">
+                  <p className="text-xs text-slate-400">
+                    This week
+                  </p>
+
+                  <p
+                    className="mt-1 text-xl font-bold text-[#0f1428]"
+                    style={{
+                      fontFamily: "Outfit, sans-serif",
+                    }}
+                  >
+                    {activeDays} active{" "}
+                    {activeDays === 1
+                      ? "day"
+                      : "days"}
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    Keep learning consistently.
+                  </p>
+                </div>
+              </div>
             </section>
 
             {/* =================================================
