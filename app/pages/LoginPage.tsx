@@ -8,6 +8,17 @@ import { useAuth } from "../context/AuthContent";
 interface LoginPageProps {
   onSwitch: () => void;
 }
+interface LoggedInUser {
+  id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+  status?: string;
+}
+interface LoginResponse {
+  user?: LoggedInUser;
+  token?: string;
+}
 
 export default function LoginPage({
   onSwitch,
@@ -15,6 +26,7 @@ export default function LoginPage({
   const router = useRouter();
   const authContext = useAuth();
   const login = authContext?.login;
+
   const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,63 +35,185 @@ export default function LoginPage({
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  // Defer fully until after hydration finishes
   useEffect(() => {
     setMounted(true);
   }, []);
+
   if (!mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-indigo-600" />
       </div>
     );
   }
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!login) return; // safety boundary guard
 
-    setLoading(true);
-    setError("");
+  const getStoredUser = (): LoggedInUser | null => {
     try {
-      await login(email, password);
-
       const storedUser = localStorage.getItem("user");
 
       if (!storedUser) {
+        return null;
+      }
+
+      const parsedUser = JSON.parse(storedUser);
+
+      if (!parsedUser || typeof parsedUser !== "object") {
+        return null;
+      }
+
+      return parsedUser;
+    } catch (error) {
+      console.error("Unable to read stored user:", error);
+      return null;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!login) {
+      setError("Login service is currently unavailable.");
+      return;
+    }
+
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail || !password) {
+      setError("Please enter your email address and password.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      /*
+       * login() should return the login response.
+       *
+       * Example:
+       * {
+       *   user: {
+       *     role: "INSTRUCTOR",
+       *     status: "PENDING"
+       *   },
+       *   token: "..."
+       * }
+       */
+      const response = (await login(
+        cleanEmail,
+        password
+      )) as LoginResponse | LoggedInUser | void;
+
+      let user: LoggedInUser | null = null;
+
+      /*
+       * 1. Prefer user returned by login()
+       */
+      if (
+        response &&
+        typeof response === "object" &&
+        "user" in response &&
+        response.user
+      ) {
+        user = response.user;
+      }
+
+      /*
+       * 2. Support a login() implementation that
+       * directly returns the user object.
+       */
+      if (
+        !user &&
+        response &&
+        typeof response === "object" &&
+        "role" in response
+      ) {
+        user = response as LoggedInUser;
+      }
+
+      /*
+       * 3. Fallback to localStorage.
+       */
+      if (!user) {
+        user = getStoredUser();
+      }
+
+      /*
+       * Do NOT show "stored user missing" here.
+       *
+       * The login request itself may have succeeded even
+       * when your AuthContext does not save the user object.
+       */
+      if (!user) {
         throw new Error(
-          "Incorrect email address or password. Please try again."
+          "Login succeeded, but account information could not be loaded. Please try again."
         );
       }
 
-      let user;
-
-      try {
-        user = JSON.parse(storedUser);
-      } catch {
-        throw new Error(
-          "Unable to read user information."
-        );
-      }
-
+      /*
+       * =========================
+       * ADMIN
+       * =========================
+       */
       if (user.role === "ADMIN") {
         router.replace("/AdminMaster");
         return;
       }
 
-      if (
-        user.role === "INSTRUCTOR" &&
-        user.status === "APPROVED"
-      ) {
-        router.replace("/Instructor/Dashboard");
-        return;
+      /*
+       * =========================
+       * INSTRUCTOR
+       * =========================
+       */
+      if (user.role === "INSTRUCTOR") {
+        const status = String(user.status || "").toUpperCase();
+
+        if (status === "APPROVED") {
+          router.replace("/Instructor/Dashboard");
+          return;
+        }
+
+        if (status === "PENDING") {
+          throw new Error(
+            "Your instructor account is pending approval. Please wait for an administrator to approve your account."
+          );
+        }
+
+        if (status === "REJECTED") {
+          throw new Error(
+            "Your instructor account has been rejected. Please contact the administrator."
+          );
+        }
+
+        if (status === "SUSPENDED") {
+          throw new Error(
+            "Your instructor account has been suspended. Please contact the administrator."
+          );
+        }
+
+        throw new Error(
+          "Your instructor account is not currently available. Please contact the administrator."
+        );
       }
 
+      /*
+       * =========================
+       * STUDENT
+       * =========================
+       */
       if (user.role === "STUDENT") {
         router.replace("/Learner/Dashboard");
         return;
       }
 
-      throw new Error("Unknown account role.");
+      /*
+       * =========================
+       * UNKNOWN ROLE
+       * =========================
+       */
+      throw new Error(
+        "Unable to determine your account type. Please contact support."
+      );
     } catch (error) {
       console.error("Login error:", error);
       localStorage.removeItem("token");
@@ -88,30 +222,26 @@ export default function LoginPage({
       setError(
         error instanceof Error
           ? error.message
-          : "Unable to login"
+          : "Unable to login. Please try again."
       );
     } finally {
       setLoading(false);
     }
   };
   const handleGoogleLogin = () => {
-    // Google OAuth will be connected here
     console.log("Google login clicked");
   };
 
   const inputStyle = (field: string) => ({
     width: "100%",
     padding: "12px 14px",
+    paddingRight: field === "password" ? 44 : 14,
     borderRadius: 10,
     border: `1.5px solid ${
-      focusedField === field
-        ? "#6c3bff"
-        : "#e2e8f0"
+      focusedField === field ? "#6c3bff" : "#e2e8f0"
     }`,
     background:
-      focusedField === field
-        ? "#faf8ff"
-        : "white",
+      focusedField === field ? "#faf8ff" : "white",
     fontSize: 15,
     color: "#0f1428",
     outline: "none",
@@ -126,29 +256,30 @@ export default function LoginPage({
   return (
     <AuthPanel>
       <div>
-
+        {/* Header */}
         <h1
-          className="text-3xl font-bold mb-1.5"
+          className="mb-1.5 text-3xl font-bold"
           style={{
             fontFamily: "Outfit, sans-serif",
             color: "#0f1428",
           }}
         >
-          Welcome 
+          Welcome
         </h1>
 
         <p
-          className="text-sm mb-8"
+          className="mb-8 text-sm"
           style={{ color: "#64748b" }}
         >
           Sign in to continue your learning journey.
         </p>
 
+        {/* Google */}
         <div className="mb-6">
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-medium transition-all"
+            className="flex w-full items-center justify-center gap-2.5 rounded-xl py-2.5 text-sm font-medium transition-all"
             style={{
               border: "1.5px solid #e2e8f0",
               background: "white",
@@ -157,42 +288,33 @@ export default function LoginPage({
               cursor: "pointer",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor =
-                "#6c3bff";
-
-              e.currentTarget.style.background =
-                "#faf8ff";
+              e.currentTarget.style.borderColor = "#6c3bff";
+              e.currentTarget.style.background = "#faf8ff";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor =
-                "#e2e8f0";
-
-              e.currentTarget.style.background =
-                "white";
+              e.currentTarget.style.borderColor = "#e2e8f0";
+              e.currentTarget.style.background = "white";
             }}
           >
-            {/* Google Icon */}
             <svg
               width="18"
               height="18"
               viewBox="0 0 18 18"
               fill="none"
+              aria-hidden="true"
             >
               <path
                 d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"
                 fill="#4285F4"
               />
-
               <path
                 d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"
                 fill="#34A853"
               />
-
               <path
                 d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 .957 13l3.007-2.29Z"
                 fill="#FBBC05"
               />
-
               <path
                 d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"
                 fill="#EA4335"
@@ -204,12 +326,10 @@ export default function LoginPage({
         </div>
 
         {/* Divider */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-6 flex items-center gap-3">
           <div
-            className="flex-1 h-px"
-            style={{
-              background: "#e2e8f0",
-            }}
+            className="h-px flex-1"
+            style={{ background: "#e2e8f0" }}
           />
 
           <span
@@ -220,25 +340,22 @@ export default function LoginPage({
           </span>
 
           <div
-            className="flex-1 h-px"
-            style={{
-              background: "#e2e8f0",
-            }}
+            className="h-px flex-1"
+            style={{ background: "#e2e8f0" }}
           />
         </div>
 
-        {/* =========================
-            LOGIN FORM
-        ========================= */}
-
+        {/* Form */}
         <form
           onSubmit={handleSubmit}
           className="space-y-4"
+          noValidate
         >
           {/* Email */}
           <div>
             <label
-              className="block text-sm font-medium mb-1.5"
+              htmlFor="email"
+              className="mb-1.5 block text-sm font-medium"
               style={{
                 color: "#374151",
                 fontFamily: "Inter, sans-serif",
@@ -248,19 +365,20 @@ export default function LoginPage({
             </label>
 
             <input
+              id="email"
+              name="email"
               type="email"
+              autoComplete="email"
               placeholder="demo@company.com"
               value={email}
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
-              onFocus={() =>
-                setFocusedField("email")
-              }
-              onBlur={() =>
-                setFocusedField(null)
-              }
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError("");
+              }}
+              onFocus={() => setFocusedField("email")}
+              onBlur={() => setFocusedField(null)}
               style={inputStyle("email")}
+              disabled={loading}
               required
             />
           </div>
@@ -268,7 +386,8 @@ export default function LoginPage({
           {/* Password */}
           <div>
             <label
-              className="block text-sm font-medium mb-1.5"
+              htmlFor="password"
+              className="mb-1.5 block text-sm font-medium"
               style={{
                 color: "#374151",
                 fontFamily: "Inter, sans-serif",
@@ -279,41 +398,45 @@ export default function LoginPage({
 
             <div className="relative">
               <input
-                type={
-                  showPassword
-                    ? "text"
-                    : "password"
-                }
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
                 placeholder="••••••••••"
                 value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) setError("");
+                }}
                 onFocus={() =>
                   setFocusedField("password")
                 }
                 onBlur={() =>
                   setFocusedField(null)
                 }
-                style={{
-                  ...inputStyle("password"),
-                  paddingRight: 44,
-                }}
+                style={inputStyle("password")}
+                disabled={loading}
                 required
               />
 
               <button
                 type="button"
                 onClick={() =>
-                  setShowPassword(
-                    !showPassword
-                  )
+                  setShowPassword((previous) => !previous)
                 }
+                disabled={loading}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
+                aria-label={
+                  showPassword
+                    ? "Hide password"
+                    : "Show password"
+                }
                 style={{
                   background: "none",
                   border: "none",
-                  cursor: "pointer",
+                  cursor: loading
+                    ? "default"
+                    : "pointer",
                   color: "#94a3b8",
                   padding: 4,
                 }}
@@ -326,9 +449,9 @@ export default function LoginPage({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
+                    aria-hidden="true"
                   >
                     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-
                     <line
                       x1="1"
                       y1="1"
@@ -344,9 +467,9 @@ export default function LoginPage({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
+                    aria-hidden="true"
                   >
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-
                     <circle
                       cx="12"
                       cy="12"
@@ -360,7 +483,15 @@ export default function LoginPage({
 
           {/* Error */}
           {error && (
-            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+            <div
+              role="alert"
+              className="rounded-lg px-4 py-3 text-sm"
+              style={{
+                background: "#fef2f2",
+                border: "1px solid #fecaca",
+                color: "#dc2626",
+              }}
+            >
               {error}
             </div>
           )}
@@ -369,7 +500,7 @@ export default function LoginPage({
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl text-white text-sm font-semibold transition-all mt-2"
+            className="mt-2 w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all"
             style={{
               background: loading
                 ? "#a880ff"
@@ -410,10 +541,10 @@ export default function LoginPage({
                     animation:
                       "spin 0.8s linear infinite",
                   }}
+                  aria-hidden="true"
                 >
                   <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l-2.83-2.83M16.24 7.76l2.83-2.83" />
                 </svg>
-
                 Signing in…
               </span>
             ) : (
@@ -424,7 +555,7 @@ export default function LoginPage({
 
         {/* Register */}
         <p
-          className="text-center text-sm mt-6"
+          className="mt-6 text-center text-sm"
           style={{ color: "#64748b" }}
         >
           New to CourseMaster?{" "}
@@ -448,7 +579,8 @@ export default function LoginPage({
         @keyframes spin {
           from {
             transform: rotate(0deg);
-      }to {
+          }
+          to {
             transform: rotate(360deg);
           }
         }

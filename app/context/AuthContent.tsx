@@ -13,15 +13,13 @@ interface User {
   name: string;
   email: string;
   role: "STUDENT" | "INSTRUCTOR" | "ADMIN";
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status:
+    | "PENDING"
+    | "APPROVED"
+    | "REJECTED"
   avatarUrl?: string | null;
   bio?: string | null;
 }
-
-type LoginResult = User | {
-  success: false;
-  error: string;
-};
 
 interface AuthContextType {
   user: User | null;
@@ -31,7 +29,7 @@ interface AuthContextType {
   login: (
     email: string,
     password: string
-  ) => Promise<LoginResult>;
+  ) => Promise<User>;
 
   register: (
     name: string,
@@ -66,27 +64,34 @@ export function AuthProvider({
   // =========================================================
 
   useEffect(() => {
-    const storedToken =
-      localStorage.getItem("token");
+    try {
+      const storedToken =
+        localStorage.getItem("token");
 
-    const storedUser =
-      localStorage.getItem("user");
+      const storedUser =
+        localStorage.getItem("user");
 
-    if (storedToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(
-          storedUser
-        );
+      if (storedToken && storedUser) {
+        const parsedUser: User =
+          JSON.parse(storedUser);
 
         setToken(storedToken);
         setUser(parsedUser);
-      } catch {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
       }
-    }
+    } catch (error) {
+      console.error(
+        "Failed to restore authentication:",
+        error
+      );
 
-    setLoading(false);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      setToken(null);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // =========================================================
@@ -96,54 +101,92 @@ export function AuthProvider({
   const login = async (
     email: string,
     password: string
-  ): Promise<LoginResult> => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email.trim().toLowerCase(),
-          password,
-        }),
+  ): Promise<User> => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim().toLowerCase(),
+            password,
+          }),
+        }
+      );
+
+      let data: any = null;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          "Invalid response from server."
+        );
       }
-    );
 
-    const data = await response.json();
+      // =====================================================
+      // BACKEND ERROR
+      // IMPORTANT:
+      // Throw the actual backend message.
+      // =====================================================
 
-    if (!response.ok) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      if (!response.ok) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
 
-      setToken(null);
-      setUser(null);
+        setToken(null);
+        setUser(null);
 
-     
-return { success: false, error: data.message || "Login failed" };
+        throw new Error(
+          data?.message || "Unable to login."
+        );
+      }
 
-    }
+      // =====================================================
+      // VALIDATE SUCCESS RESPONSE
+      // =====================================================
 
-    if (!data.token || !data.user) {
+      if (!data?.token || !data?.user) {
+        throw new Error(
+          "Invalid login response from server."
+        );
+      }
+
+      const loggedInUser: User = data.user;
+
+      // =====================================================
+      // SAVE AUTH DATA
+      // =====================================================
+
+      localStorage.setItem(
+        "token",
+        data.token
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(loggedInUser)
+      );
+
+      setToken(data.token);
+      setUser(loggedInUser);
+
+      return loggedInUser;
+    } catch (error) {
+      console.error("Login error:", error);
+
+      // Re-throw the original backend error
+      if (error instanceof Error) {
+        throw error;
+      }
+
       throw new Error(
-        "Invalid login response from server"
+        "Unable to login. Please try again."
       );
     }
-
-    localStorage.setItem(
-      "token",
-      data.token
-    );
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify(data.user)
-    );
-
-    setToken(data.token);
-    setUser(data.user);
-    return data.user;
   };
 
   // =========================================================
@@ -154,28 +197,53 @@ return { success: false, error: data.message || "Login failed" };
     name: string,
     email: string,
     password: string
-  ) => {
-  const minLength = 8;
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>_]/.test(password);
+  ): Promise<void> => {
+    const minLength = 8;
 
-  if (password.length < minLength) {
-    throw new Error(`Password must be at least ${minLength} characters long.`);
-  }
-  if (!hasUpperCase) {
-    throw new Error("Password must include at least one uppercase letter.");
-  }
-  if (!hasLowerCase) {
-    throw new Error("Password must include at least one lowercase letter.");
-  }
-  if (!hasNumber) {
-    throw new Error("Password must include at least one number.");
-  }
-  if (!hasSpecialChar) {
-    throw new Error("Password must include at least one special character.");
-  }
+    const hasUpperCase =
+      /[A-Z]/.test(password);
+
+    const hasLowerCase =
+      /[a-z]/.test(password);
+
+    const hasNumber =
+      /[0-9]/.test(password);
+
+    const hasSpecialChar =
+      /[!@#$%^&*(),.?":{}|<>_]/.test(
+        password
+      );
+
+    if (password.length < minLength) {
+      throw new Error(
+        `Password must be at least ${minLength} characters long.`
+      );
+    }
+
+    if (!hasUpperCase) {
+      throw new Error(
+        "Password must include at least one uppercase letter."
+      );
+    }
+
+    if (!hasLowerCase) {
+      throw new Error(
+        "Password must include at least one lowercase letter."
+      );
+    }
+
+    if (!hasNumber) {
+      throw new Error(
+        "Password must include at least one number."
+      );
+    }
+
+    if (!hasSpecialChar) {
+      throw new Error(
+        "Password must include at least one special character."
+      );
+    }
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
       {
@@ -184,10 +252,11 @@ return { success: false, error: data.message || "Login failed" };
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
-          email,
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
           password,
           role: "STUDENT",
+          termsAccepted: true,
         }),
       }
     );
@@ -196,8 +265,7 @@ return { success: false, error: data.message || "Login failed" };
 
     if (!response.ok) {
       throw new Error(
-        data.message ||
-          "Registration failed"
+        data?.message || "Registration failed"
       );
     }
   };
