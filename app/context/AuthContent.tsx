@@ -16,7 +16,7 @@ interface User {
   status:
     | "PENDING"
     | "APPROVED"
-    | "REJECTED"
+    | "REJECTED";
   avatarUrl?: string | null;
   bio?: string | null;
 }
@@ -29,6 +29,11 @@ interface AuthContextType {
   login: (
     email: string,
     password: string
+  ) => Promise<User>;
+
+  // Google Login
+  loginWithGoogle: (
+    credential: string
   ) => Promise<User>;
 
   register: (
@@ -95,7 +100,29 @@ export function AuthProvider({
   }, []);
 
   // =========================================================
-  // LOGIN
+  // SAVE AUTH SESSION
+  // =========================================================
+
+  const saveAuthSession = (
+    authToken: string,
+    authUser: User
+  ) => {
+    localStorage.setItem(
+      "token",
+      authToken
+    );
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(authUser)
+    );
+
+    setToken(authToken);
+    setUser(authUser);
+  };
+
+  // =========================================================
+  // EMAIL LOGIN
   // =========================================================
 
   const login = async (
@@ -127,12 +154,6 @@ export function AuthProvider({
         );
       }
 
-      // =====================================================
-      // BACKEND ERROR
-      // IMPORTANT:
-      // Throw the actual backend message.
-      // =====================================================
-
       if (!response.ok) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -145,46 +166,104 @@ export function AuthProvider({
         );
       }
 
-      // =====================================================
-      // VALIDATE SUCCESS RESPONSE
-      // =====================================================
-
       if (!data?.token || !data?.user) {
         throw new Error(
           "Invalid login response from server."
         );
       }
 
-      const loggedInUser: User = data.user;
+      const loggedInUser: User =
+        data.user;
 
-      // =====================================================
-      // SAVE AUTH DATA
-      // =====================================================
-
-      localStorage.setItem(
-        "token",
-        data.token
+      saveAuthSession(
+        data.token,
+        loggedInUser
       );
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(loggedInUser)
-      );
-
-      setToken(data.token);
-      setUser(loggedInUser);
 
       return loggedInUser;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error(
+        "Login error:",
+        error
+      );
 
-      // Re-throw the original backend error
       if (error instanceof Error) {
         throw error;
       }
 
       throw new Error(
         "Unable to login. Please try again."
+      );
+    }
+  };
+
+  // =========================================================
+  // GOOGLE LOGIN
+  // =========================================================
+
+  const loginWithGoogle = async (
+    credential: string
+  ): Promise<User> => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            credential,
+          }),
+        }
+      );
+
+      let data: any = null;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          "Invalid response from server."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message ||
+            "Google login failed."
+        );
+      }
+
+      if (!data?.token || !data?.user) {
+        throw new Error(
+          "Invalid Google login response."
+        );
+      }
+
+      const googleUser: User =
+        data.user;
+
+      saveAuthSession(
+        data.token,
+        googleUser
+      );
+
+      return googleUser;
+    } catch (error) {
+      console.error(
+        "Google login error:",
+        error
+      );
+
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      throw new Error(
+        "Google login failed. Please try again."
       );
     }
   };
@@ -265,7 +344,8 @@ export function AuthProvider({
 
     if (!response.ok) {
       throw new Error(
-        data?.message || "Registration failed"
+        data?.message ||
+          "Registration failed"
       );
     }
   };
@@ -289,6 +369,7 @@ export function AuthProvider({
         token,
         loading,
         login,
+        loginWithGoogle,
         register,
         logout,
       }}
