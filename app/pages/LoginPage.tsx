@@ -1,223 +1,110 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useGoogleLogin } from "@react-oauth/google";
+
 import AuthPanel from "../components/AuthPanel";
 import { useAuth } from "../context/AuthContent";
 
 interface LoginPageProps {
   onSwitch: () => void;
 }
-interface LoggedInUser {
-  id?: string;
-  name?: string;
-  email?: string;
-  role?: string;
-  status?: string;
-}
-interface LoginResponse {
-  user?: LoggedInUser;
-  token?: string;
-}
 
 export default function LoginPage({
   onSwitch,
 }: LoginPageProps) {
   const router = useRouter();
-  const authContext = useAuth();
-  const login = authContext?.login;
 
-  const [mounted, setMounted] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [error, setError] = useState("");
+  const {
+    login,
+    loginWithGoogle,
+  } = useAuth();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // =========================================================
+  // STATE
+  // =========================================================
 
-  if (!mounted) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-indigo-600" />
-      </div>
-    );
-  }
+  const [email, setEmail] =
+    useState("");
 
-  const getStoredUser = (): LoggedInUser | null => {
-    try {
-      const storedUser = localStorage.getItem("user");
+  const [password, setPassword] =
+    useState("");
 
-      if (!storedUser) {
-        return null;
-      }
+  const [showPassword, setShowPassword] =
+    useState(false);
 
-      const parsedUser = JSON.parse(storedUser);
+  const [loading, setLoading] =
+    useState(false);
 
-      if (!parsedUser || typeof parsedUser !== "object") {
-        return null;
-      }
+  const [googleLoading, setGoogleLoading] =
+    useState(false);
 
-      return parsedUser;
-    } catch (error) {
-      console.error("Unable to read stored user:", error);
-      return null;
+  const [error, setError] =
+    useState("");
+
+  const [focusedField, setFocusedField] =
+    useState<string | null>(null);
+
+  // =========================================================
+  // ROLE BASED REDIRECT
+  // =========================================================
+
+  const redirectUser = (user: {
+    role: "STUDENT" | "INSTRUCTOR" | "ADMIN";
+    status: "PENDING" | "APPROVED" | "REJECTED";
+  }) => {
+    if (user.role === "ADMIN") {
+      router.replace("/AdminMaster");
+      return;
     }
+
+    if (
+      user.role === "INSTRUCTOR" &&
+      user.status === "APPROVED"
+    ) {
+      router.replace(
+        "/Instructor/Dashboard"
+      );
+      return;
+    }
+
+    if (user.role === "STUDENT") {
+      router.replace(
+        "/Learner/Dashboard"
+      );
+      return;
+    }
+
+    throw new Error(
+      "Unable to determine account access."
+    );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // =========================================================
+  // EMAIL LOGIN
+  // =========================================================
+
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
-
-    if (!login) {
-      setError("Login service is currently unavailable.");
-      return;
-    }
-
-    const cleanEmail = email.trim();
-
-    if (!cleanEmail || !password) {
-      setError("Please enter your email address and password.");
-      return;
-    }
 
     setLoading(true);
     setError("");
 
     try {
-      /*
-       * login() should return the login response.
-       *
-       * Example:
-       * {
-       *   user: {
-       *     role: "INSTRUCTOR",
-       *     status: "PENDING"
-       *   },
-       *   token: "..."
-       * }
-       */
-      const response = (await login(
-        cleanEmail,
+      const user = await login(
+        email,
         password
-      )) as LoginResponse | LoggedInUser | void;
-
-      let user: LoggedInUser | null = null;
-
-      /*
-       * 1. Prefer user returned by login()
-       */
-      if (
-        response &&
-        typeof response === "object" &&
-        "user" in response &&
-        response.user
-      ) {
-        user = response.user;
-      }
-
-      /*
-       * 2. Support a login() implementation that
-       * directly returns the user object.
-       */
-      if (
-        !user &&
-        response &&
-        typeof response === "object" &&
-        "role" in response
-      ) {
-        user = response as LoggedInUser;
-      }
-
-      /*
-       * 3. Fallback to localStorage.
-       */
-      if (!user) {
-        user = getStoredUser();
-      }
-
-      /*
-       * Do NOT show "stored user missing" here.
-       *
-       * The login request itself may have succeeded even
-       * when your AuthContext does not save the user object.
-       */
-      if (!user) {
-        throw new Error(
-          "Login succeeded, but account information could not be loaded. Please try again."
-        );
-      }
-
-      /*
-       * =========================
-       * ADMIN
-       * =========================
-       */
-      if (user.role === "ADMIN") {
-        router.replace("/AdminMaster");
-        return;
-      }
-
-      /*
-       * =========================
-       * INSTRUCTOR
-       * =========================
-       */
-      if (user.role === "INSTRUCTOR") {
-        const status = String(user.status || "").toUpperCase();
-
-        if (status === "APPROVED") {
-          router.replace("/Instructor/Dashboard");
-          return;
-        }
-
-        if (status === "PENDING") {
-          throw new Error(
-            "Your instructor account is pending approval. Please wait for an administrator to approve your account."
-          );
-        }
-
-        if (status === "REJECTED") {
-          throw new Error(
-            "Your instructor account has been rejected. Please contact the administrator."
-          );
-        }
-
-        if (status === "SUSPENDED") {
-          throw new Error(
-            "Your instructor account has been suspended. Please contact the administrator."
-          );
-        }
-
-        throw new Error(
-          "Your instructor account is not currently available. Please contact the administrator."
-        );
-      }
-
-      /*
-       * =========================
-       * STUDENT
-       * =========================
-       */
-      if (user.role === "STUDENT") {
-        router.replace("/Learner/Dashboard");
-        return;
-      }
-
-      /*
-       * =========================
-       * UNKNOWN ROLE
-       * =========================
-       */
-      throw new Error(
-        "Unable to determine your account type. Please contact support."
       );
+
+      redirectUser(user);
     } catch (error) {
-      console.error("Login error:", error);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      console.error(
+        "Login error:",
+        error
+      );
 
       setError(
         error instanceof Error
@@ -228,169 +115,252 @@ export default function LoginPage({
       setLoading(false);
     }
   };
+
+  // =========================================================
+  // GOOGLE LOGIN
+  // =========================================================
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setGoogleLoading(true);
+        setError("");
+
+        const user =
+          await loginWithGoogle(
+            tokenResponse.access_token
+          );
+
+        redirectUser(user);
+      } catch (error) {
+        console.error(
+          "Google login error:",
+          error
+        );
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Google login failed."
+        );
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+
+    onError: () => {
+      setGoogleLoading(false);
+
+      setError(
+        "Google login was cancelled or failed."
+      );
+    },
+  });
+
+  // =========================================================
+  // GOOGLE BUTTON
+  // =========================================================
+
   const handleGoogleLogin = () => {
-    console.log("Google login clicked");
+    setError("");
+    googleLogin();
   };
 
-  const inputStyle = (field: string) => ({
+  // =========================================================
+  // INPUT STYLE
+  // =========================================================
+
+  const inputStyle = (
+    field: string
+  ): React.CSSProperties => ({
     width: "100%",
     padding: "12px 14px",
-    paddingRight: field === "password" ? 44 : 14,
-    borderRadius: 10,
+    borderRadius: "10px",
+
     border: `1.5px solid ${
-      focusedField === field ? "#6c3bff" : "#e2e8f0"
+      focusedField === field
+        ? "#6c3bff"
+        : "#e2e8f0"
     }`,
+
     background:
-      focusedField === field ? "#faf8ff" : "white",
-    fontSize: 15,
+      focusedField === field
+        ? "#faf8ff"
+        : "#ffffff",
+
+    fontSize: "15px",
     color: "#0f1428",
+
     outline: "none",
+
     transition: "all 0.15s ease",
-    fontFamily: "Inter, sans-serif",
+
+    fontFamily:
+      "Inter, sans-serif",
+
     boxShadow:
       focusedField === field
         ? "0 0 0 3px rgba(108,59,255,0.1)"
         : "none",
   });
 
+  // =========================================================
+  // PAGE
+  // =========================================================
+
   return (
     <AuthPanel>
       <div>
-        {/* Header */}
+        {/* HEADER */}
+
         <h1
-          className="mb-1.5 text-3xl font-bold"
+          className="text-3xl font-bold mb-1.5"
           style={{
-            fontFamily: "Outfit, sans-serif",
+            fontFamily:
+              "Outfit, sans-serif",
             color: "#0f1428",
           }}
         >
-          Welcome
+          Welcome back
         </h1>
 
         <p
-          className="mb-8 text-sm"
-          style={{ color: "#64748b" }}
+          className="text-sm mb-8"
+          style={{
+            color: "#64748b",
+          }}
         >
-          Sign in to continue your learning journey.
+          Sign in to continue your
+          learning journey.
         </p>
 
-        {/* Google */}
-        <div className="mb-6">
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="flex w-full items-center justify-center gap-2.5 rounded-xl py-2.5 text-sm font-medium transition-all"
-            style={{
-              border: "1.5px solid #e2e8f0",
-              background: "white",
-              color: "#1e293b",
-              fontFamily: "Inter, sans-serif",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#6c3bff";
-              e.currentTarget.style.background = "#faf8ff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#e2e8f0";
-              e.currentTarget.style.background = "white";
-            }}
+        {/* GOOGLE BUTTON */}
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={googleLoading}
+          className="w-full flex items-center justify-center gap-3 py-3 rounded-xl text-base font-medium transition-all mb-6"
+          style={{
+            border:
+              "1.5px solid #e2e8f0",
+
+            background: "#ffffff",
+
+            color: "#1e293b",
+
+            cursor: googleLoading
+              ? "not-allowed"
+              : "pointer",
+
+            opacity: googleLoading
+              ? 0.7
+              : 1,
+          }}
+        >
+          {/* GOOGLE ICON */}
+
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 18 18"
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"
-                fill="#4285F4"
-              />
-              <path
-                d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"
-                fill="#34A853"
-              />
-              <path
-                d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 .957 13l3.007-2.29Z"
-                fill="#FBBC05"
-              />
-              <path
-                d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"
-                fill="#EA4335"
-              />
-            </svg>
+            <path
+              d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"
+              fill="#4285F4"
+            />
 
-            Google
-          </button>
-        </div>
+            <path
+              d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"
+              fill="#34A853"
+            />
 
-        {/* Divider */}
-        <div className="mb-6 flex items-center gap-3">
+            <path
+              d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 .957 13l3.007-2.29Z"
+              fill="#FBBC05"
+            />
+
+            <path
+              d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"
+              fill="#EA4335"
+            />
+          </svg>
+
+          {googleLoading
+            ? "Connecting to Google..."
+            : "Continue with Google"}
+        </button>
+
+        {/* DIVIDER */}
+
+        <div className="flex items-center gap-3 mb-6">
           <div
-            className="h-px flex-1"
-            style={{ background: "#e2e8f0" }}
+            className="flex-1 h-px"
+            style={{
+              background: "#e2e8f0",
+            }}
           />
 
           <span
-            className="text-xs"
-            style={{ color: "#94a3b8" }}
+            className="text-sm"
+            style={{
+              color: "#94a3b8",
+            }}
           >
             or sign in with email
           </span>
 
           <div
-            className="h-px flex-1"
-            style={{ background: "#e2e8f0" }}
+            className="flex-1 h-px"
+            style={{
+              background: "#e2e8f0",
+            }}
           />
         </div>
 
-        {/* Form */}
+        {/* LOGIN FORM */}
+
         <form
           onSubmit={handleSubmit}
-          className="space-y-4"
-          noValidate
+          className="space-y-5"
         >
-          {/* Email */}
+          {/* EMAIL */}
+
           <div>
             <label
-              htmlFor="email"
-              className="mb-1.5 block text-sm font-medium"
+              className="block text-sm font-medium mb-2"
               style={{
                 color: "#374151",
-                fontFamily: "Inter, sans-serif",
               }}
             >
               Email address
             </label>
 
             <input
-              id="email"
-              name="email"
               type="email"
-              autoComplete="email"
               placeholder="demo@company.com"
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (error) setError("");
-              }}
-              onFocus={() => setFocusedField("email")}
-              onBlur={() => setFocusedField(null)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              onFocus={() =>
+                setFocusedField("email")
+              }
+              onBlur={() =>
+                setFocusedField(null)
+              }
               style={inputStyle("email")}
-              disabled={loading}
               required
             />
           </div>
 
-          {/* Password */}
+          {/* PASSWORD */}
+
           <div>
             <label
-              htmlFor="password"
-              className="mb-1.5 block text-sm font-medium"
+              className="block text-sm font-medium mb-2"
               style={{
                 color: "#374151",
-                fontFamily: "Inter, sans-serif",
               }}
             >
               Password
@@ -398,193 +368,114 @@ export default function LoginPage({
 
             <div className="relative">
               <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                placeholder="••••••••••"
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                placeholder="••••••••"
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (error) setError("");
-                }}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
                 onFocus={() =>
-                  setFocusedField("password")
+                  setFocusedField(
+                    "password"
+                  )
                 }
                 onBlur={() =>
                   setFocusedField(null)
                 }
-                style={inputStyle("password")}
-                disabled={loading}
+                style={{
+                  ...inputStyle("password"),
+                  paddingRight: "50px",
+                }}
                 required
               />
 
               <button
                 type="button"
                 onClick={() =>
-                  setShowPassword((previous) => !previous)
+                  setShowPassword(
+                    !showPassword
+                  )
                 }
-                disabled={loading}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
-                aria-label={
-                  showPassword
-                    ? "Hide password"
-                    : "Show password"
-                }
                 style={{
-                  background: "none",
+                  background: "transparent",
                   border: "none",
-                  cursor: loading
-                    ? "default"
-                    : "pointer",
+                  cursor: "pointer",
                   color: "#94a3b8",
-                  padding: 4,
                 }}
               >
-                {showPassword ? (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden="true"
-                  >
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                    <line
-                      x1="1"
-                      y1="1"
-                      x2="23"
-                      y2="23"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden="true"
-                  >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="3"
-                    />
-                  </svg>
-                )}
+                {showPassword
+                  ? "Hide"
+                  : "Show"}
               </button>
             </div>
           </div>
 
-          {/* Error */}
+          {/* ERROR */}
+
           {error && (
-            <div
-              role="alert"
-              className="rounded-lg px-4 py-3 text-sm"
-              style={{
-                background: "#fef2f2",
-                border: "1px solid #fecaca",
-                color: "#dc2626",
-              }}
-            >
+            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
             </div>
           )}
 
-          {/* Submit */}
+          {/* LOGIN BUTTON */}
+
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all"
+            className="w-full py-3.5 rounded-xl text-white text-base font-semibold transition-all"
             style={{
               background: loading
                 ? "#a880ff"
                 : "linear-gradient(135deg, #6c3bff 0%, #8a5fff 100%)",
+
               border: "none",
+
               cursor: loading
-                ? "default"
+                ? "not-allowed"
                 : "pointer",
-              fontFamily: "Inter, sans-serif",
+
               boxShadow: loading
                 ? "none"
                 : "0 4px 14px rgba(108,59,255,0.35)",
-              letterSpacing: "0.01em",
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) {
-                e.currentTarget.style.boxShadow =
-                  "0 6px 20px rgba(108,59,255,0.45)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!loading) {
-                e.currentTarget.style.boxShadow =
-                  "0 4px 14px rgba(108,59,255,0.35)";
-              }
             }}
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  style={{
-                    animation:
-                      "spin 0.8s linear infinite",
-                  }}
-                  aria-hidden="true"
-                >
-                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l-2.83-2.83M16.24 7.76l2.83-2.83" />
-                </svg>
-                Signing in…
-              </span>
-            ) : (
-              "Sign in to CourseMaster"
-            )}
+            {loading
+              ? "Signing in..."
+              : "Sign in to CourseMaster"}
           </button>
         </form>
 
-        {/* Register */}
+        {/* REGISTER */}
+
         <p
-          className="mt-6 text-center text-sm"
-          style={{ color: "#64748b" }}
+          className="text-center text-sm mt-7"
+          style={{
+            color: "#64748b",
+          }}
         >
           New to CourseMaster?{" "}
+
           <button
             type="button"
             onClick={onSwitch}
-            className="font-semibold"
             style={{
               color: "#6c3bff",
               background: "none",
               border: "none",
               cursor: "pointer",
+              fontWeight: 600,
             }}
           >
             Create a free account
           </button>
         </p>
       </div>
-
-      <style>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </AuthPanel>
   );
 }
