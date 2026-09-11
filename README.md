@@ -22,7 +22,8 @@ A Next.js frontend for a full Learning Management System, with distinct experien
 | Icons | `lucide-react` |
 | Data fetching | `fetch` + React state |
 | Forms | Controlled inputs + manual validation |
-| Auth | JWT, via a custom `AuthContext` |
+| Auth | JWT, Google OAuth, via a custom `AuthContext` |
+| Google Auth | `@react-oauth/google` + Google OAuth Client ID |
 
 ## Features
 
@@ -30,6 +31,7 @@ A Next.js frontend for a full Learning Management System, with distinct experien
 - Login and registration with client-side password strength validation
 - JWT + user profile persisted across page refreshes
 - Role-aware routing — Students, Instructors, and Admins land on different areas of the app
+- New users signing in with Google are assigned the Student role
 
 **Students (Learner)**
 - Course catalog with live search, category filters, level filters, and sorting
@@ -126,6 +128,7 @@ Create a `.env.local` file in the project root:
 |---|---|---|
 | `NEXT_PUBLIC_API_URL` | Base URL of the backend API | `http://localhost:5000` |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name, used by `next-cloudinary` to resolve image URLs | `your-cloud-name` |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google OAuth Web Client ID used for Google sign-in | `123456789-example.apps.googleusercontent.com` |
 
 ### Running the App
 
