@@ -54,6 +54,7 @@ export default function RegisterPage({
     useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [focusedField, setFocusedField] =
     useState<string | null>(null);
 
@@ -238,6 +239,7 @@ export default function RegisterPage({
       );
 
       const data: {
+        success?: boolean;
         message?: string;
       } = await response.json();
 
@@ -247,8 +249,11 @@ export default function RegisterPage({
             "Unable to create account."
         );
       }
-
+      setSuccessMessage(data.message || "Registration successful!");
+      setError("");
+      setTimeout(() => {
       onSwitch();
+      }, 2000);
     } catch (err) {
       console.error(
         "Registration error:",
@@ -343,6 +348,21 @@ export default function RegisterPage({
             ? "Join CourseMaster and start your learning journey."
             : "Almost there — just a few more details."}
         </p>
+        {successMessage && (
+         <div
+          className="mb-5 rounded-xl px-4 py-3 text-sm"
+           style={{
+           background: "#f0fdf4",
+           border: "1px solid #bbf7d0",
+           color: "#15803d",
+           }}
+            >
+           <p className="font-semibold">
+           Registration Successful! 
+           </p>
+           <p className="mt-1">{successMessage}</p>
+           </div>
+          )}
 
         {/* Error */}
         {error && (
