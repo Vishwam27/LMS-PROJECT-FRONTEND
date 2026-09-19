@@ -66,7 +66,40 @@ type DashboardData = {
 
 export default function LearnerDashboard() {
   const router = useRouter();
+  const [greeting, setGreeting] = useState({
+  text: "Good morning",
+  emoji: "🌅",
+});
 
+useEffect(() => {
+  const updateGreeting = () => {
+    const hour = new Date().getHours();
+
+    if (hour >= 5 && hour < 12) {
+      setGreeting({
+        text: "Good morning",
+        emoji: "🌅",
+      });
+    } else if (hour >= 12 && hour < 16) {
+      setGreeting({
+        text: "Good afternoon",
+        emoji: "☀️",
+      });
+    } else if (hour >= 16 && hour < 21) {
+      setGreeting({
+        text: "Good evening",
+        emoji: "🌇",
+      });
+    } else {
+      setGreeting({
+        text: "Good night",
+        emoji: "🌙",
+      });
+    }
+  };
+
+  updateGreeting();
+}, []);
   const [dashboard, setDashboard] =
     useState<DashboardData | null>(null);
 
@@ -254,7 +287,10 @@ export default function LearnerDashboard() {
                   fontFamily: "Outfit, sans-serif",
                 }}
               >
-                Good morning, {user.name} learner  👋
+               {greeting.text}, {user.name} learner{" "}
+               <span role="img" aria-label={greeting.text}>
+               {greeting.emoji}
+               </span>
               </h1>
 
               <p className="mt-1 text-sm text-slate-500">
