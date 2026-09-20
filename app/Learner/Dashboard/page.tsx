@@ -540,7 +540,7 @@ useEffect(() => {
                           <button
                             onClick={() =>
                               router.push(
-                                `/Learner/Courses/${course.id}/learn`
+                                `/Learner/Courses/${course.id}/Learn`
                               )
                             }
                             className="flex h-9 w-full shrink-0 items-center justify-center rounded-xl bg-[#6c3bff] text-white transition hover:bg-[#5d32e8] sm:w-9"
