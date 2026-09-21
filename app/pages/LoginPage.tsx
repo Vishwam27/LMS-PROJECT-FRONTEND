@@ -6,6 +6,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 
 import AuthPanel from "../components/AuthPanel";
 import { useAuth } from "../context/AuthContent";
+import BackendStatus from "../components/BackendStatus";
 
 interface LoginPageProps {
   onSwitch: () => void;
@@ -210,6 +211,7 @@ export default function LoginPage({
 
   return (
     <AuthPanel>
+      <BackendStatus />
       <div>
         {/* HEADER */}
 
