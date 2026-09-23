@@ -25,6 +25,9 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   // =========================================================
   // GET LOGGED-IN USER
@@ -46,7 +49,7 @@ export default function SettingsPage() {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -106,15 +109,13 @@ export default function SettingsPage() {
             name: name.trim(),
             bio: bio.trim(),
           }),
-        }
+        },
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(
-          data.message || "Unable to update profile."
-        );
+        setError(data.message || "Unable to update profile.");
         return;
       }
 
@@ -122,10 +123,7 @@ export default function SettingsPage() {
       setName(data.user.name || "");
       setBio(data.user.bio || "");
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(data.user)
-      );
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       setMessage("Profile updated successfully.");
     } catch (error) {
@@ -136,6 +134,49 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token || !user) {
+      router.replace("/");
+      return;
+    }
+
+    setDeleting(true);
+    setDeleteError("");
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/account`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setDeleteError(data.message || "Unable to delete your account.");
+        return;
+      }
+
+      // Remove local authentication data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      // Redirect after successful deletion
+      router.replace("/");
+    } catch (error) {
+      console.error("Delete account error:", error);
+
+      setDeleteError("Something went wrong. Please try again.");
+    } finally {
+      setDeleting(false);
+    }
+  };
   // =========================================================
   // LOGOUT
   // =========================================================
@@ -181,9 +222,7 @@ export default function SettingsPage() {
             lg:pt-0
           "
         >
-          <p className="text-sm text-slate-500">
-            Loading settings...
-          </p>
+          <p className="text-sm text-slate-500">Loading settings...</p>
         </main>
       </div>
     );
@@ -199,12 +238,12 @@ export default function SettingsPage() {
 
   const initials = user.name
     ? user.name
-        .split(/\s+/)
-        .filter(Boolean)
-        .map((word) => word[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((word) => word[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase()
     : "U";
 
   // =========================================================
@@ -305,7 +344,6 @@ export default function SettingsPage() {
           "
         >
           <div className="mx-auto max-w-5xl">
-
             <div
               className="
                 grid
@@ -338,9 +376,7 @@ export default function SettingsPage() {
                     "
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg">
-                        👤
-                      </span>
+                      <span className="text-lg">👤</span>
 
                       <span className="text-sm font-semibold text-[#6c3bff]">
                         Profile
@@ -452,7 +488,6 @@ export default function SettingsPage() {
                 ========================================== */}
 
                 <div className="mt-6 space-y-5">
-
                   {/* Name */}
 
                   <div>
@@ -463,9 +498,7 @@ export default function SettingsPage() {
                     <input
                       type="text"
                       value={name}
-                      onChange={(event) =>
-                        setName(event.target.value)
-                      }
+                      onChange={(event) => setName(event.target.value)}
                       className="
                         w-full
                         rounded-xl
@@ -548,9 +581,7 @@ export default function SettingsPage() {
 
                     <textarea
                       value={bio}
-                      onChange={(event) =>
-                        setBio(event.target.value)
-                      }
+                      onChange={(event) => setBio(event.target.value)}
                       rows={4}
                       maxLength={160}
                       placeholder="Tell us a little about yourself..."
@@ -683,9 +714,7 @@ export default function SettingsPage() {
                       sm:w-auto
                     "
                   >
-                    {saving
-                      ? "Saving..."
-                      : "Save Changes"}
+                    {saving ? "Saving..." : "Save Changes"}
                   </button>
                 </div>
 
@@ -731,6 +760,103 @@ export default function SettingsPage() {
                   >
                     Sign Out
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeleteError("");
+                      setShowDeleteModal(true);
+                    }}
+                    className="
+                     mt-3
+                     w-full
+                     rounded-xl
+                     border
+                     border-red-300
+                     bg-red-50
+                     px-5
+                     py-2.5
+                     text-sm
+                     font-semibold
+                     text-red-600
+                     transition
+                     hover:bg-red-100
+                     sm:w-auto
+                       "
+                  >
+                    Delete Account
+                  </button>
+                  {showDeleteModal && (
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+                      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                          <span className="text-xl">⚠️</span>
+                        </div>
+
+                        <h2 className="mt-4 text-lg font-bold text-[#0f1428]">
+                          Delete your account?
+                        </h2>
+
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                          This action will permanently delete your account and
+                          associated data. This cannot be undone.
+                        </p>
+
+                        {deleteError && (
+                          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                            {deleteError}
+                          </div>
+                        )}
+
+                        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowDeleteModal(false);
+                              setDeleteError("");
+                            }}
+                            disabled={deleting}
+                            className="
+            rounded-xl
+            border
+            border-slate-200
+            bg-white
+            px-5
+            py-2.5
+            text-sm
+            font-semibold
+            text-slate-600
+            hover:bg-slate-50
+            disabled:opacity-50
+          "
+                          >
+                            Cancel
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={handleDeleteAccount}
+                            disabled={deleting}
+                            className="
+                              rounded-xl
+                              bg-red-600
+                              px-5
+                              py-2.5
+                              text-sm
+                              font-semibold
+                              text-white
+                              hover:bg-red-700
+                              disabled:cursor-not-allowed
+                             disabled:opacity-60  
+                             "
+                          >
+                            {deleting
+                              ? "Deleting..."
+                              : "Yes, Delete Account"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </section>
             </div>
