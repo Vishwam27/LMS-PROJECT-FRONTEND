@@ -14,9 +14,9 @@ interface User {
   email: string;
   role: "STUDENT" | "INSTRUCTOR" | "ADMIN";
   status:
-    | "PENDING"
-    | "APPROVED"
-    | "REJECTED";
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED";
   avatarUrl?: string | null;
   bio?: string | null;
 }
@@ -233,7 +233,7 @@ export function AuthProvider({
       if (!response.ok) {
         throw new Error(
           data?.message ||
-            "Google login failed."
+          "Google login failed."
         );
       }
 
@@ -345,7 +345,7 @@ export function AuthProvider({
     if (!response.ok) {
       throw new Error(
         data?.message ||
-          "Registration failed"
+        "Registration failed"
       );
     }
   };

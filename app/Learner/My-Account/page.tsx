@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/learner/SideBar";
 
@@ -28,6 +28,13 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
 
   // =========================================================
   // GET LOGGED-IN USER
@@ -175,6 +182,89 @@ export default function SettingsPage() {
       setDeleteError("Something went wrong. Please try again.");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleChangePassword = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    setPasswordError("");
+    setPasswordMessage("");
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New passwords do not match.");
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      setPasswordError(
+        "Your new password must be different from your current password."
+      );
+      return;
+    }
+
+    const strongPassword =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>_]).{8,}$/;
+
+    if (!strongPassword.test(newPassword)) {
+      setPasswordError(
+        "Use at least 8 characters, including uppercase and lowercase letters, a number, and a special character."
+      );
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.replace("/");
+      return;
+    }
+
+    setPasswordSaving(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            currentPassword,
+            newPassword,
+          }),
+        }
+      );
+
+      const contentType = response.headers.get("content-type");
+      const data = contentType?.includes("application/json")
+        ? await response.json()
+        : null;
+
+      if (!response.ok) {
+        setPasswordError(
+          data?.message || "Unable to change password."
+        );
+        return;
+      }
+
+      setPasswordMessage(
+        data?.message || "Password changed successfully."
+      );
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      console.error("Change password error:", error);
+      setPasswordError(
+        "Unable to connect to the server. Please try again."
+      );
+    } finally {
+      setPasswordSaving(false);
     }
   };
   // =========================================================
@@ -760,6 +850,165 @@ export default function SettingsPage() {
                   >
                     Sign Out
                   </button>
+                  {/* CHANGE PASSWORD BUTTON */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPasswordError("");
+                      setPasswordMessage("");
+                      setShowPasswordModal(true);
+                    }}
+                    className="
+                        mt-3
+                        w-full
+                        rounded-xl
+                        border
+                        border-purple-200 
+                        bg-purple-50
+                        px-5
+                        py-2.5
+                        text-sm
+                        font-semibold
+                        text-[#6c3bff]
+                        transition
+                        hover:bg-purple-100
+                        sm:w-auto
+                        "
+                  >
+                    Change Password
+                  </button>
+                  {/* CHANGE PASSWORD MODAL */}
+                  {showPasswordModal && (
+                    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 px-4">
+                      <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="change-password-title"
+                        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+                      >
+                        <h2
+                          id="change-password-title"
+                          className="text-lg font-bold text-[#0f1428]"
+                        >
+                          Change Password
+                        </h2>
+
+                        <p className="mt-2 text-sm text-slate-500">
+                          Enter your current password and choose a new one.
+                        </p>
+
+                        <form
+                          onSubmit={handleChangePassword}
+                          className="mt-5 space-y-4"
+                        >
+                          <div>
+                            <label
+                              htmlFor="current-password"
+                              className="mb-2 block text-sm font-medium text-slate-700"
+                            >
+                              Current Password
+                            </label>
+                            <input
+                              id="current-password"
+                              type="password"
+                              autoComplete="current-password"
+                              value={currentPassword}
+                              onChange={(e) => setCurrentPassword(e.target.value)}
+                              required
+                              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#6c3bff] focus:ring-2 focus:ring-purple-100"
+                              placeholder="Enter current password"
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="new-password"
+                              className="mb-2 block text-sm font-medium text-slate-700"
+                            >
+                              New Password
+                            </label>
+                            <input
+                              id="new-password"
+                              type="password"
+                              autoComplete="new-password"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              required
+                              minLength={8}
+                              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#6c3bff] focus:ring-2 focus:ring-purple-100"
+                              placeholder="Enter new password"
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="confirm-password"
+                              className="mb-2 block text-sm font-medium text-slate-700"
+                            >
+                              Confirm New Password
+                            </label>
+                            <input
+                              id="confirm-password"
+                              type="password"
+                              autoComplete="new-password"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              required
+                              minLength={8}
+                              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#6c3bff] focus:ring-2 focus:ring-purple-100"
+                              placeholder="Confirm new password"
+                            />
+                          </div>
+
+                          {passwordError && (
+                            <div
+                              role="alert"
+                              className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+                            >
+                              {passwordError}
+                            </div>
+                          )}
+
+                          {passwordMessage && (
+                            <div
+                              role="status"
+                              className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+                            >
+                              {passwordMessage}
+                            </div>
+                          )}
+
+                          <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+                            <button
+                              type="button"
+                              disabled={passwordSaving}
+                              onClick={() => {
+                                setShowPasswordModal(false);
+                                setPasswordError("");
+                                setPasswordMessage("");
+                                setCurrentPassword("");
+                                setNewPassword("");
+                                setConfirmPassword("");
+                              }}
+                              className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                            >
+                              Cancel
+                            </button>
+
+                            <button
+                              type="submit"
+                              disabled={passwordSaving}
+                              className="rounded-xl bg-[#6c3bff] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#5d32e8] disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {passwordSaving
+                                ? "Updating..."
+                                : "Update Password"}
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
