@@ -38,9 +38,9 @@ type Course = {
   };
 
   learningStatus:
-    | "NOT_STARTED"
-    | "IN_PROGRESS"
-    | "COMPLETED";
+  | "NOT_STARTED"
+  | "IN_PROGRESS"
+  | "COMPLETED";
 
   nextLesson: {
     id: string;
@@ -331,11 +331,10 @@ export default function MyCoursesPage() {
             <p className="mt-1 text-sm text-slate-500">
               {summary.totalEnrolled === 0
                 ? "You haven't enrolled in any courses yet."
-                : `${summary.totalEnrolled} ${
-                    summary.totalEnrolled === 1
-                      ? "course"
-                      : "courses"
-                  } enrolled`}
+                : `${summary.totalEnrolled} ${summary.totalEnrolled === 1
+                  ? "course"
+                  : "courses"
+                } enrolled`}
             </p>
           </div>
 
@@ -536,11 +535,10 @@ export default function MyCoursesPage() {
                           ? "white"
                           : "#64748b",
 
-                        border: `1px solid ${
-                          active
-                            ? "#6c3bff"
-                            : "#e2e8f0"
-                        }`,
+                        border: `1px solid ${active
+                          ? "#6c3bff"
+                          : "#e2e8f0"
+                          }`,
                       }}
                     >
                       {item}
@@ -612,10 +610,9 @@ export default function MyCoursesPage() {
                       rounded-lg
                       transition
 
-                      ${
-                        view === "grid"
-                          ? "bg-white text-[#6c3bff] shadow-sm"
-                          : "text-slate-400 hover:text-slate-600"
+                      ${view === "grid"
+                        ? "bg-white text-[#6c3bff] shadow-sm"
+                        : "text-slate-400 hover:text-slate-600"
                       }
                     `}
                   >
@@ -676,10 +673,9 @@ export default function MyCoursesPage() {
                       rounded-lg
                       transition
 
-                      ${
-                        view === "list"
-                          ? "bg-white text-[#6c3bff] shadow-sm"
-                          : "text-slate-400 hover:text-slate-600"
+                      ${view === "list"
+                        ? "bg-white text-[#6c3bff] shadow-sm"
+                        : "text-slate-400 hover:text-slate-600"
                       }
                     `}
                   >
@@ -865,30 +861,30 @@ export default function MyCoursesPage() {
                             style={{
                               background:
                                 course.learningStatus ===
-                                "COMPLETED"
+                                  "COMPLETED"
                                   ? "#dcfce7"
                                   : course.learningStatus ===
                                     "IN_PROGRESS"
-                                  ? "#ede9fe"
-                                  : "#f1f5f9",
+                                    ? "#ede9fe"
+                                    : "#f1f5f9",
 
                               color:
                                 course.learningStatus ===
-                                "COMPLETED"
+                                  "COMPLETED"
                                   ? "#16a34a"
                                   : course.learningStatus ===
                                     "IN_PROGRESS"
-                                  ? "#6c3bff"
-                                  : "#64748b",
+                                    ? "#6c3bff"
+                                    : "#64748b",
                             }}
                           >
                             {course.learningStatus ===
-                            "COMPLETED"
+                              "COMPLETED"
                               ? "Completed"
                               : course.learningStatus ===
                                 "IN_PROGRESS"
-                              ? "In Progress"
-                              : "Not Started"}
+                                ? "In Progress"
+                                : "Not Started"}
                           </span>
                         </div>
 
@@ -1021,12 +1017,12 @@ export default function MyCoursesPage() {
                               "
                             >
                               {course.learningStatus ===
-                              "COMPLETED"
+                                "COMPLETED"
                                 ? "Review"
                                 : course.learningStatus ===
                                   "IN_PROGRESS"
-                                ? "Continue"
-                                : "Start"}
+                                  ? "Continue"
+                                  : "Start"}
                             </button>
                           </div>
                         </div>
@@ -1104,30 +1100,30 @@ export default function MyCoursesPage() {
                               style={{
                                 background:
                                   course.learningStatus ===
-                                  "COMPLETED"
+                                    "COMPLETED"
                                     ? "#dcfce7"
                                     : course.learningStatus ===
                                       "IN_PROGRESS"
-                                    ? "#ede9fe"
-                                    : "#f1f5f9",
+                                      ? "#ede9fe"
+                                      : "#f1f5f9",
 
                                 color:
                                   course.learningStatus ===
-                                  "COMPLETED"
+                                    "COMPLETED"
                                     ? "#16a34a"
                                     : course.learningStatus ===
                                       "IN_PROGRESS"
-                                    ? "#6c3bff"
-                                    : "#64748b",
+                                      ? "#6c3bff"
+                                      : "#64748b",
                               }}
                             >
                               {course.learningStatus ===
-                              "COMPLETED"
+                                "COMPLETED"
                                 ? "Completed"
                                 : course.learningStatus ===
                                   "IN_PROGRESS"
-                                ? "In Progress"
-                                : "Not Started"}
+                                  ? "In Progress"
+                                  : "Not Started"}
                             </span>
 
                             {course.category && (
@@ -1226,12 +1222,12 @@ export default function MyCoursesPage() {
                               "
                             >
                               {course.learningStatus ===
-                              "COMPLETED"
+                                "COMPLETED"
                                 ? "Review"
                                 : course.learningStatus ===
                                   "IN_PROGRESS"
-                                ? "Continue"
-                                : "Start"}
+                                  ? "Continue"
+                                  : "Start"}
                             </button>
                           </div>
                         </div>

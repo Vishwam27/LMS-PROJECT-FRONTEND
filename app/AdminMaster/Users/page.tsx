@@ -38,6 +38,10 @@ export default function AdminUsersPage() {
   // Delete API state
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [roleError, setRoleError] = useState("");
+  const [roleChangeUser, setRoleChangeUser] = useState<User | null>(null);
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
   // =========================================================
   // FETCH USERS
@@ -128,6 +132,98 @@ export default function AdminUsersPage() {
     fetchUsers();
   }, [router]);
 
+  const openRoleChangeBox = (
+    user: User,
+    newRole: UserRole
+  ) => {
+    if (newRole === user.role) {
+      return;
+    }
+
+    setRoleError("");
+    setRoleChangeUser(user);
+    setSelectedRole(newRole);
+  };
+  const handleRoleChange = async (
+    userId: string,
+    newRole: UserRole
+  ) => {
+    try {
+      setUpdatingRole(userId);
+      setRoleError("");
+
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        localStorage.removeItem("user");
+        router.replace("/");
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/users/${userId}/role`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            role: newRole,
+          }),
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        router.replace("/");
+        return;
+      }
+
+      if (response.status === 403) {
+        setRoleError(
+          data.message ||
+          "You do not have permission to change user roles."
+        );
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to update user role."
+        );
+      }
+
+      // Update user in local state
+      setUsers((currentUsers) =>
+        currentUsers.map((user) =>
+          user.id === userId
+            ? {
+              ...user,
+              role: data.user.role,
+              updatedAt: data.user.updatedAt,
+            }
+            : user
+        )
+      );
+      setRoleChangeUser(null);
+      setSelectedRole(null);
+    } catch (error) {
+      console.error("Update role error:", error);
+
+      setRoleError(
+        error instanceof Error
+          ? error.message
+          : "Unable to update user role."
+      );
+    } finally {
+      setUpdatingRole(null);
+    }
+  };
+
   // =========================================================
   // OPEN DELETE CONFIRMATION
   // =========================================================
@@ -193,7 +289,7 @@ export default function AdminUsersPage() {
       if (response.status === 403) {
         setDeleteError(
           data.message ||
-            "You do not have permission to delete this user."
+          "You do not have permission to delete this user."
         );
         return;
       }
@@ -372,378 +468,461 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </header>
+      <main>
 
-      {/* Main */}
-      <main className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
-        {/* Summary */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs text-slate-400">
-              Total Users
-            </p>
+        {/* Main */}
+        <main className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+          {/* Summary */}
+          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <p className="text-xs text-slate-400">
+                Total Users
+              </p>
 
-            <p
-              className="mt-2 text-2xl font-bold text-[#0f1428]"
-              style={{
-                fontFamily: "Outfit, sans-serif",
-              }}
-            >
-              {users.length}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs text-slate-400">
-              Students
-            </p>
-
-            <p
-              className="mt-2 text-2xl font-bold text-[#0f1428]"
-              style={{
-                fontFamily: "Outfit, sans-serif",
-              }}
-            >
-              {
-                users.filter(
-                  (user) => user.role === "STUDENT"
-                ).length
-              }
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs text-slate-400">
-              Instructors
-            </p>
-
-            <p
-              className="mt-2 text-2xl font-bold text-[#0f1428]"
-              style={{
-                fontFamily: "Outfit, sans-serif",
-              }}
-            >
-              {
-                users.filter(
-                  (user) =>
-                    user.role === "INSTRUCTOR"
-                ).length
-              }
-            </p>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="relative w-full md:max-w-md">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#94a3b8"
-                strokeWidth="2"
+              <p
+                className="mt-2 text-2xl font-bold text-[#0f1428]"
+                style={{
+                  fontFamily: "Outfit, sans-serif",
+                }}
               >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-
-              <input
-                type="text"
-                value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-                placeholder="Search by name or email..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-[#0f1428] outline-none transition focus:border-[#6c3bff] focus:bg-white"
-              />
+                {users.length}
+              </p>
             </div>
 
-            <select
-              value={roleFilter}
-              onChange={(event) =>
-                setRoleFilter(
-                  event.target.value as
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <p className="text-xs text-slate-400">
+                Students
+              </p>
+
+              <p
+                className="mt-2 text-2xl font-bold text-[#0f1428]"
+                style={{
+                  fontFamily: "Outfit, sans-serif",
+                }}
+              >
+                {
+                  users.filter(
+                    (user) => user.role === "STUDENT"
+                  ).length
+                }
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <p className="text-xs text-slate-400">
+                Instructors
+              </p>
+
+              <p
+                className="mt-2 text-2xl font-bold text-[#0f1428]"
+                style={{
+                  fontFamily: "Outfit, sans-serif",
+                }}
+              >
+                {
+                  users.filter(
+                    (user) =>
+                      user.role === "INSTRUCTOR"
+                  ).length
+                }
+              </p>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="relative w-full md:max-w-md">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#94a3b8"
+                  strokeWidth="2"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(event) =>
+                    setSearch(event.target.value)
+                  }
+                  placeholder="Search by name or email..."
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-[#0f1428] outline-none transition focus:border-[#6c3bff] focus:bg-white"
+                />
+              </div>
+
+              <select
+                value={roleFilter}
+                onChange={(event) =>
+                  setRoleFilter(
+                    event.target.value as
                     | "ALL"
                     | UserRole
-                )
-              }
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600 outline-none focus:border-[#6c3bff]"
-            >
-              <option value="ALL">
-                All Roles
-              </option>
+                  )
+                }
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600 outline-none focus:border-[#6c3bff]"
+              >
+                <option value="ALL">
+                  All Roles
+                </option>
 
-              <option value="STUDENT">
-                Students
-              </option>
+                <option value="STUDENT">
+                  Students
+                </option>
 
-              <option value="INSTRUCTOR">
-                Instructors
-              </option>
+                <option value="INSTRUCTOR">
+                  Instructors
+                </option>
 
-              <option value="ADMIN">
-                Admins
-              </option>
-            </select>
-          </div>
+                <option value="ADMIN">
+                  Admins
+                </option>
+              </select>
+            </div>
 
-          <div className="mt-4 text-xs text-slate-400">
-            Showing {filteredUsers.length} of{" "}
-            {users.length} users
-          </div>
-        </section>
+            <div className="mt-4 text-xs text-slate-400">
+              Showing {filteredUsers.length} of{" "}
+              {users.length} users
+            </div>
+          </section>
 
-        {/* Users table */}
-        <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-          {/* Desktop */}
-          <div className="hidden overflow-x-auto md:block">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500">
-                    User
-                  </th>
+          {/* Users table */}
+          <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            {/* Desktop */}
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500">
+                      User
+                    </th>
 
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500">
-                    Email
-                  </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500">
+                      Email
+                    </th>
 
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500">
-                    Role
-                  </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500">
+                      Role
+                    </th>
 
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500">
-                    Created
-                  </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500">
+                      Created
+                    </th>
 
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {filteredUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
-                  >
-                    {/* User */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {user.avatarUrl ? (
-                          <img
-                            src={user.avatarUrl}
-                            alt={user.name}
-                            className="h-10 w-10 rounded-xl object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-sm font-bold text-[#6c3bff]">
-                            {user.name
-                              .slice(0, 2)
-                              .toUpperCase()}
+                <tbody>
+                  {filteredUsers.map((user) => (
+                    <tr
+                      key={user.id}
+                      className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
+                    >
+                      {/* User */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          {user.avatarUrl ? (
+                            <img
+                              src={user.avatarUrl}
+                              alt={user.name}
+                              className="h-10 w-10 rounded-xl object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-sm font-bold text-[#6c3bff]">
+                              {user.name
+                                .slice(0, 2)
+                                .toUpperCase()}
+                            </div>
+                          )}
+
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-[#0f1428]">
+                              {user.name}
+                            </p>
+
+                            <p className="mt-0.5 text-xs text-slate-400">
+                              {user.id.slice(0, 8)}...
+                            </p>
                           </div>
-                        )}
+                        </div>
+                      </td>
 
+                      {/* Email */}
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {user.email}
+                      </td>
+
+                      {/* Role */}
+                      <td className="px-6 py-4">
+                        <select
+                          value={user.role}
+                          disabled={
+                            updatingRole === user.id ||
+                            user.id === JSON.parse(
+                              localStorage.getItem("user") || "{}"
+                            ).id
+                          }
+                          onChange={(event) =>
+                            openRoleChangeBox(
+                              user,
+                              event.target.value as UserRole
+                            )
+                          }
+
+                          className={`rounded-lg border-0 px-3 py-1.5 text-xs font-semibold outline-none ${roleStyle(
+                            user.role
+                          )}`}
+                        >
+                          <option value="STUDENT">STUDENT</option>
+                          <option value="INSTRUCTOR">INSTRUCTOR</option>
+                          <option value="ADMIN">ADMIN</option>
+                        </select>
+                      </td>
+
+                      {/* Created */}
+                      < td className="px-6 py-4 text-sm text-slate-500" >
+                        {formatDate(user.createdAt)}
+                      </td>
+                      {/* ===================================================== */}
+                      {/* ROLE CHANGE CONFIRMATION BOX */}
+                      {/* ===================================================== */}
+
+
+
+                      {/* Delete */}
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openDeleteBox(user)
+                          }
+                          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-100"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile */}
+            <div className="divide-y divide-slate-100 md:hidden">
+              {filteredUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className="p-4"
+                >
+                  <div className="flex items-start gap-3">
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.name}
+                        className="h-11 w-11 rounded-xl object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-sm font-bold text-[#6c3bff]">
+                        {user.name
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                    )}
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-[#0f1428]">
                             {user.name}
                           </p>
 
-                          <p className="mt-0.5 text-xs text-slate-400">
-                            {user.id.slice(0, 8)}...
+                          <p className="mt-1 break-all text-xs text-slate-500">
+                            {user.email}
                           </p>
                         </div>
-                      </div>
-                    </td>
 
-                    {/* Email */}
-                    <td className="px-6 py-4 text-sm text-slate-600">
-                      {user.email}
-                    </td>
-
-                    {/* Role */}
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${roleStyle(
-                          user.role
-                        )}`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-
-                    {/* Created */}
-                    <td className="px-6 py-4 text-sm text-slate-500">
-                      {formatDate(user.createdAt)}
-                    </td>
-
-                    {/* Delete */}
-                    <td className="px-6 py-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          openDeleteBox(user)
-                        }
-                        className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-100"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile */}
-          <div className="divide-y divide-slate-100 md:hidden">
-            {filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="p-4"
-              >
-                <div className="flex items-start gap-3">
-                  {user.avatarUrl ? (
-                    <img
-                      src={user.avatarUrl}
-                      alt={user.name}
-                      className="h-11 w-11 rounded-xl object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-sm font-bold text-[#6c3bff]">
-                      {user.name
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </div>
-                  )}
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-[#0f1428]">
-                          {user.name}
-                        </p>
-
-                        <p className="mt-1 break-all text-xs text-slate-500">
-                          {user.email}
-                        </p>
+                        <span
+                          className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold ${roleStyle(
+                            user.role
+                          )}`}
+                        >
+                          {user.role}
+                        </span>
                       </div>
 
-                      <span
-                        className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold ${roleStyle(
-                          user.role
-                        )}`}
-                      >
-                        {user.role}
-                      </span>
-                    </div>
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        <p className="text-xs text-slate-400">
+                          Joined{" "}
+                          {formatDate(user.createdAt)}
+                        </p>
 
-                    <div className="mt-3 flex items-center justify-between gap-3">
-                      <p className="text-xs text-slate-400">
-                        Joined{" "}
-                        {formatDate(user.createdAt)}
-                      </p>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          openDeleteBox(user)
-                        }
-                        className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100"
-                      >
-                        Delete
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openDeleteBox(user)
+                          }
+                          className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Empty state */}
-          {filteredUsers.length === 0 && (
-            <div className="px-6 py-14 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
-                🔎
-              </div>
-
-              <p className="mt-4 text-sm font-semibold text-slate-700">
-                No users found
-              </p>
-
-              <p className="mt-1 text-xs text-slate-400">
-                Try changing your search or role filter.
-              </p>
+              ))}
             </div>
-          )}
-        </section>
+
+            {/* Empty state */}
+            {
+              filteredUsers.length === 0 && (
+                <div className="px-6 py-14 text-center">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
+                    🔎
+                  </div>
+
+                  <p className="mt-4 text-sm font-semibold text-slate-700">
+                    No users found
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    Try changing your search or role filter.
+                  </p>
+                </div>
+              )
+            }
+          </section >
+        </main >
       </main>
 
       {/* ===================================================== */}
-      {/* DELETE CONFIRMATION BOX */}
+      {/* ROLE CHANGE CONFIRMATION BOX */}
       {/* ===================================================== */}
 
-      {deleteUser && (
+      {roleChangeUser && selectedRole && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-red-200 bg-white shadow-xl">
-            {/* Red header */}
-            <div className="border-b border-red-200 bg-red-50 px-6 py-5">
+          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-purple-200 bg-white shadow-xl">
+
+            {/* Header */}
+            <div className="border-b border-purple-200 bg-purple-50 px-6 py-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-600">
-                  ⚠
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-[#6c3bff]">
+                  🔄
                 </div>
 
                 <div>
-                  <h2 className="text-lg font-bold text-red-700">
-                    Delete User
+                  <h2 className="text-lg font-bold text-[#6c3bff]">
+                    Change User Role
                   </h2>
 
-                  <p className="text-xs text-red-500">
-                    This action cannot be undone.
+                  <p className="text-xs text-purple-500">
+                    Please confirm this action.
                   </p>
                 </div>
+
               </div>
             </div>
 
             {/* Content */}
             <div className="px-6 py-5">
+
               <p className="text-sm leading-6 text-slate-600">
-                Are you sure you want to delete{" "}
+                Do you want to change the role of{" "}
                 <span className="font-semibold text-[#0f1428]">
-                  {deleteUser.name}
+                  {roleChangeUser.name}
                 </span>
                 ?
               </p>
 
-              <div className="mt-4 rounded-xl bg-slate-50 p-3">
+              <div className="mt-4 rounded-xl bg-slate-50 p-4">
+
                 <p className="text-xs text-slate-400">
                   Email
                 </p>
 
                 <p className="mt-1 break-all text-sm font-medium text-slate-700">
-                  {deleteUser.email}
+                  {roleChangeUser.email}
                 </p>
+
+                <div className="mt-4 flex items-center gap-3">
+
+                  <span
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ${roleStyle(
+                      roleChangeUser.role
+                    )}`}
+                  >
+                    {roleChangeUser.role}
+                  </span>
+
+                  <span className="text-slate-400">
+                    →
+                  </span>
+
+                  <span
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ${roleStyle(
+                      selectedRole
+                    )}`}
+                  >
+                    {selectedRole}
+                  </span>
+
+                </div>
               </div>
 
-              {/* Backend error */}
-              {deleteError && (
-                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-                  <p className="text-sm font-medium text-red-600">
-                    {deleteError}
+              {selectedRole === "INSTRUCTOR" && (
+                <div className="mt-4 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3">
+                  <p className="text-sm leading-5 text-orange-700">
+                    This user will become an{" "}
+                    <span className="font-semibold">
+                      Instructor
+                    </span>
+                    . Instructor access will require approval.
                   </p>
                 </div>
               )}
+
+              {selectedRole === "ADMIN" && (
+                <div className="mt-4 rounded-xl border border-purple-200 bg-purple-50 px-4 py-3">
+                  <p className="text-sm leading-5 text-purple-700">
+                    This user will receive{" "}
+                    <span className="font-semibold">
+                      Administrator
+                    </span>{" "}
+                    privileges.
+                  </p>
+                </div>
+              )}
+
+              {roleError && (
+                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                  <p className="text-sm font-medium text-red-600">
+                    {roleError}
+                  </p>
+                </div>
+              )}
+
             </div>
 
             {/* Actions */}
             <div className="flex justify-end gap-3 border-t border-slate-100 bg-slate-50 px-6 py-4">
+
               <button
                 type="button"
-                onClick={closeDeleteBox}
-                disabled={deleting}
+                disabled={updatingRole !== null}
+                onClick={() => {
+                  setRoleChangeUser(null);
+                  setSelectedRole(null);
+                  setRoleError("");
+                }}
                 className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Cancel
@@ -751,16 +930,106 @@ export default function AdminUsersPage() {
 
               <button
                 type="button"
-                onClick={handleDeleteUser}
-                disabled={deleting}
-                className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={updatingRole !== null}
+                onClick={() =>
+                  handleRoleChange(
+                    roleChangeUser.id,
+                    selectedRole
+                  )
+                }
+                className="rounded-xl bg-[#6c3bff] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5d32e8] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {deleting ? "Deleting..." : "Delete User"}
+                {updatingRole !== null
+                  ? "Changing..."
+                  : "Confirm Change"}
               </button>
+
             </div>
+
           </div>
         </div>
       )}
-    </div>
+      {/* ===================================================== */}
+      {/* DELETE CONFIRMATION BOX */}
+      {/* ===================================================== */}
+
+      {
+        deleteUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+            <div className="w-full max-w-md overflow-hidden rounded-2xl border border-red-200 bg-white shadow-xl">
+              {/* Red header */}
+              <div className="border-b border-red-200 bg-red-50 px-6 py-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                    ⚠
+                  </div>
+
+                  <div>
+                    <h2 className="text-lg font-bold text-red-700">
+                      Delete User
+                    </h2>
+
+                    <p className="text-xs text-red-500">
+                      This action cannot be undone.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-5">
+                <p className="text-sm leading-6 text-slate-600">
+                  Are you sure you want to delete{" "}
+                  <span className="font-semibold text-[#0f1428]">
+                    {deleteUser.name}
+                  </span>
+                  ?
+                </p>
+
+                <div className="mt-4 rounded-xl bg-slate-50 p-3">
+                  <p className="text-xs text-slate-400">
+                    Email
+                  </p>
+
+                  <p className="mt-1 break-all text-sm font-medium text-slate-700">
+                    {deleteUser.email}
+                  </p>
+                </div>
+
+                {/* Backend error */}
+                {deleteError && (
+                  <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                    <p className="text-sm font-medium text-red-600">
+                      {deleteError}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 border-t border-slate-100 bg-slate-50 px-6 py-4">
+                <button
+                  type="button"
+                  onClick={closeDeleteBox}
+                  disabled={deleting}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDeleteUser}
+                  disabled={deleting}
+                  className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {deleting ? "Deleting..." : "Delete User"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+    </div >
   );
 }
