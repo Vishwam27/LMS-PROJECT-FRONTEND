@@ -263,11 +263,11 @@ export default function AdminPage() {
 
           <button
             onClick={() =>
-              router.push("/learner/Dashboard")
+              router.push("/")
             }
             className="mt-6 rounded-xl bg-[#6c3bff] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5d32e8]"
           >
-            Back to Dashboard
+            Back to login
           </button>
         </div>
       </div>
