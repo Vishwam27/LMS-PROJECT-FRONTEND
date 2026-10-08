@@ -1,9 +1,11 @@
 "use client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type CSSProperties, type FormEvent } from "react";
 import AuthPanel from "../components/AuthPanel";
-interface RegisterPageProps {
-  onSwitch: () => void;
-}
+import GoogleAuthButton from "../components/GoogleAuthButton";
+
+
 type Role = "STUDENT" | "INSTRUCTOR" | "ADMIN";
 
 const ROLES: {
@@ -28,17 +30,16 @@ const ROLES: {
     },
   ];
 
-export default function RegisterPage({ onSwitch }: RegisterPageProps) {
+export default function RegisterPage() {
+  const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
-
   const [role, setRole] = useState<Role>("STUDENT");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
-  const [agreed, setAgreed] = useState<boolean>(false);
+  const [agreed, setAgreed] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -59,6 +60,15 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
             "Admin accounts cannot be created from this registration page. Please contact an existing administrator.",
         }
         : null;
+
+  const handleGoogleRegister = (user: { role: "STUDENT" | "INSTRUCTOR" | "ADMIN"; status: "PENDING" | "APPROVED" | "REJECTED" }) => {
+    if (user.role !== "STUDENT") {
+      setError("Google registration creates a learner account.");
+      return;
+    }
+
+    router.replace("/Learner/Dashboard");
+  };
   // -----------------------------
   // Password validation
   // -----------------------------
@@ -68,16 +78,14 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
     number: /[0-9]/.test(password),
-    special: /[!@#$%^&*(),.?":{}|<>_]/.test(password),
+    special: /[!@#$%^&\*(),.?":{}|<>_]/.test(password),
   };
-
   const isPasswordValid =
     passwordChecks.length &&
     passwordChecks.uppercase &&
     passwordChecks.lowercase &&
     passwordChecks.number &&
     passwordChecks.special;
-
   const passwordScore = [
     passwordChecks.length,
     passwordChecks.uppercase,
@@ -85,7 +93,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
     passwordChecks.number,
     passwordChecks.special,
   ].filter(Boolean).length;
-
   const getStrength = () => {
     if (!password) {
       return {
@@ -93,43 +100,36 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
         color: "#94a3b8",
       };
     }
-
     if (passwordScore <= 2) {
       return {
         label: "Weak",
         color: "#ef4444",
       };
     }
-
     if (passwordScore === 3) {
       return {
         label: "Fair",
         color: "#f59e0b",
       };
     }
-
     if (passwordScore === 4) {
       return {
         label: "Good",
         color: "#22c55e",
       };
     }
-
     return {
       label: "Strong",
       color: "#16a34a",
     };
   };
-
   const strength = getStrength();
-
   // -----------------------------
   // Input styling
   // -----------------------------
 
   const getInputStyle = (field: string): CSSProperties => {
     const isFocused = focusedField === field;
-
     return {
       width: "100%",
       padding: "12px 14px",
@@ -144,66 +144,50 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
       boxShadow: isFocused ? "0 0 0 3px rgba(108,59,255,0.1)" : "none",
     };
   };
-
   // -----------------------------
   // Step 1
   // -----------------------------
-
   const handleNext = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-
     const trimmedFirstName = firstName.trim();
     const trimmedLastName = lastName.trim();
     const trimmedEmail = email.trim();
-
     if (!trimmedFirstName) {
       setError("Please enter your first name.");
       return;
     }
-
     if (!trimmedLastName) {
       setError("Please enter your last name.");
       return;
     }
-
     if (!trimmedEmail) {
       setError("Please enter your email.");
       return;
     }
-
     setStep(2);
   };
-
   // -----------------------------
   // Step 2
   // -----------------------------
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-
     if (!isPasswordValid) {
       setError("Please meet all password requirements.");
       return;
     }
-
     if (!agreed) {
       setError("Please agree to the Terms of Service.");
       return;
     }
-
     try {
       setLoading(true);
-
       const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
-
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
       if (!apiUrl) {
         throw new Error("NEXT_PUBLIC_API_URL is not configured.");
       }
-
       const response = await fetch(`${apiUrl}/api/auth/register`, {
         method: "POST",
         headers: {
@@ -217,23 +201,20 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
           termsAccepted: true,
         }),
       });
-
       const data: {
         success?: boolean;
         message?: string;
       } = await response.json();
-
       if (!response.ok) {
         throw new Error(data.message || "Unable to create account.");
       }
       setSuccessMessage(data.message || "Registration successful!");
       setError("");
       setTimeout(() => {
-        onSwitch();
+        router.push("/Login");
       }, 2000);
     } catch (err) {
       console.error("Registration error:", err);
-
       setError(
         err instanceof Error ? err.message : "Unable to create account.",
       );
@@ -241,7 +222,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
       setLoading(false);
     }
   };
-
   // -----------------------------
   // UI
   // -----------------------------
@@ -260,14 +240,12 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
           >
             {step === 2 ? "✓" : "1"}
           </div>
-
           <div
             className="w-12 h-0.5 rounded-full"
             style={{
               background: step === 2 ? "#6c3bff" : "#e2e8f0",
             }}
           />
-
           <div
             className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
             style={{
@@ -277,7 +255,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
           >
             2
           </div>
-
           <span
             className="text-xs ml-1"
             style={{
@@ -287,7 +264,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
             Step {step} of 2
           </span>
         </div>
-
         {/* Heading */}
         <h1
           className="text-3xl font-bold mb-1.5"
@@ -298,7 +274,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
         >
           {step === 1 ? "Create your account" : "Set your password"}
         </h1>
-
         <p
           className="text-sm mb-6"
           style={{
@@ -325,10 +300,8 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
               <span className="mt-0.5 text-sm">
                 {roleNotice.type === "warning" ? "⚠️" : "ℹ️"}
               </span>
-
               <div>
                 <p className="text-sm font-semibold">{roleNotice.title}</p>
-
                 <p className="mt-1 text-xs leading-5">{roleNotice.message}</p>
               </div>
             </div>
@@ -347,7 +320,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
             <p className="mt-1">{successMessage}</p>
           </div>
         )}
-
         {/* Error */}
         {error && (
           <div
@@ -361,65 +333,109 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
             {error}
           </div>
         )}
-
         {/* =========================
             STEP 1
-        ========================== */}
+        \========================== */}
         {step === 1 && (
-          <form onSubmit={handleNext} className="space-y-4">
-            {/* Role */}
-            <div>
-              <label
-                className="block text-sm font-medium mb-2"
-                style={{
-                  color: "#374151",
-                }}
-              >
-                I want to join as
-              </label>
+          <>
+            <div className="mb-5">
+              <GoogleAuthButton
+                label="Sign up with Google"
+                onSuccess={handleGoogleRegister}
+                onError={setError} />
 
-              <div className="grid grid-cols-3 gap-2">
-                {ROLES.map((item) => {
-                  const selected = role === item.id;
-
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => {
-                        setRole(item.id);
-                        setError("");
-                        setSuccessMessage("");
-                      }}
-                      className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl text-center transition-all"
-                      style={{
-                        border: `1.5px solid ${selected ? "#6c3bff" : "#e2e8f0"
-                          }`,
-                        background: selected ? "#faf8ff" : "#ffffff",
-                        cursor: "pointer",
-                        boxShadow: selected
-                          ? "0 0 0 3px rgba(108,59,255,0.1)"
-                          : "none",
-                      }}
-                    >
-                      <span className="text-xl">{item.icon}</span>
-
-                      <span
-                        className="text-xs font-semibold"
+              <div className="mt-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-slate-200" />
+                <span className="text-xs text-slate-400">or register with email</span>
+                <div className="h-px flex-1 bg-slate-200" />
+              </div>
+            </div><form onSubmit={handleNext} className="space-y-4">
+              {/* Role */}
+              <div>
+                <label
+                  className="block text-sm font-medium mb-2"
+                  style={{
+                    color: "#374151",
+                  }}
+                >
+                  I want to join as
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {ROLES.map((item) => {
+                    const selected = role === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          setRole(item.id);
+                          setError("");
+                          setSuccessMessage("");
+                        }}
+                        className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl text-center transition-all"
                         style={{
-                          color: selected ? "#6c3bff" : "#374151",
+                          border: `1.5px solid ${selected ? "#6c3bff" : "#e2e8f0"}`,
+                          background: selected ? "#faf8ff" : "#ffffff",
+                          cursor: "pointer",
+                          boxShadow: selected
+                            ? "0 0 0 3px rgba(108,59,255,0.1)"
+                            : "none",
                         }}
                       >
-                        {item.label}
-                      </span>
-                    </button>
-                  );
-                })}
+                        <span className="text-xl">{item.icon}</span>
+                        <span
+                          className="text-xs font-semibold"
+                          style={{
+                            color: selected ? "#6c3bff" : "#374151",
+                          }}
+                        >
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-
-            {/* Name */}
-            <div className="grid grid-cols-2 gap-3">
+              {/* Name */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label
+                    className="block text-sm font-medium mb-1.5"
+                    style={{
+                      color: "#374151",
+                    }}
+                  >
+                    First name
+                  </label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(event) => setFirstName(event.target.value)}
+                    onFocus={() => setFocusedField("first")}
+                    onBlur={() => setFocusedField(null)}
+                    style={getInputStyle("first")}
+                    required />
+                </div>
+                <div>
+                  <label
+                    className="block text-sm font-medium mb-1.5"
+                    style={{
+                      color: "#374151",
+                    }}
+                  >
+                    Last name
+                  </label>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(event) => setLastName(event.target.value)}
+                    onFocus={() => setFocusedField("last")}
+                    onBlur={() => setFocusedField(null)}
+                    style={getInputStyle("last")}
+                    required />
+                </div>
+              </div>
+              {/* Email */}
               <div>
                 <label
                   className="block text-sm font-medium mb-1.5"
@@ -427,84 +443,37 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                     color: "#374151",
                   }}
                 >
-                  First name
+                  Email address
                 </label>
-
                 <input
-                  type="text"
-                  value={firstName}
-                  onChange={(event) => setFirstName(event.target.value)}
-                  onFocus={() => setFocusedField("first")}
+                  type="email"
+                  placeholder="demo@company.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  onFocus={() => setFocusedField("email")}
                   onBlur={() => setFocusedField(null)}
-                  style={getInputStyle("first")}
-                  required
-                />
+                  style={getInputStyle("email")}
+                  required />
               </div>
-
-              <div>
-                <label
-                  className="block text-sm font-medium mb-1.5"
-                  style={{
-                    color: "#374151",
-                  }}
-                >
-                  Last name
-                </label>
-
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(event) => setLastName(event.target.value)}
-                  onFocus={() => setFocusedField("last")}
-                  onBlur={() => setFocusedField(null)}
-                  style={getInputStyle("last")}
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label
-                className="block text-sm font-medium mb-1.5"
+              {/* Continue */}
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-xl text-white text-sm font-semibold"
                 style={{
-                  color: "#374151",
+                  background: "linear-gradient(135deg, #6c3bff 0%, #8a5fff 100%)",
+                  border: "none",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(108,59,255,0.35)",
                 }}
               >
-                Email address
-              </label>
-
-              <input
-                type="email"
-                placeholder="demo@company.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                onFocus={() => setFocusedField("email")}
-                onBlur={() => setFocusedField(null)}
-                style={getInputStyle("email")}
-                required
-              />
-            </div>
-
-            {/* Continue */}
-            <button
-              type="submit"
-              className="w-full py-3.5 rounded-xl text-white text-sm font-semibold"
-              style={{
-                background: "linear-gradient(135deg, #6c3bff 0%, #8a5fff 100%)",
-                border: "none",
-                cursor: "pointer",
-                boxShadow: "0 4px 14px rgba(108,59,255,0.35)",
-              }}
-            >
-              Continue →
-            </button>
-          </form>
+                Continue →
+              </button>
+            </form>
+          </>
         )}
-
         {/* =========================
             STEP 2
-        ========================== */}
+        \========================== */}
         {step === 2 && (
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Password */}
@@ -517,7 +486,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
               >
                 Create password
               </label>
-
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -532,7 +500,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                   }}
                   required
                 />
-
                 <button
                   type="button"
                   onClick={() => setShowPassword((current) => !current)}
@@ -549,7 +516,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                   {showPassword ? "🙈" : "👁"}
                 </button>
               </div>
-
               {/* Password feedback */}
               {password.length > 0 && (
                 <div
@@ -568,7 +534,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                     >
                       Password strength
                     </span>
-
                     <span
                       className="font-semibold"
                       style={{
@@ -578,7 +543,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                       {strength.label}
                     </span>
                   </div>
-
                   <div
                     className="flex items-center gap-2"
                     style={{
@@ -588,7 +552,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                     <span>{passwordChecks.length ? "✓" : "○"}</span>
                     <span>At least 8 characters</span>
                   </div>
-
                   <div
                     className="flex items-center gap-2"
                     style={{
@@ -598,7 +561,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                     <span>{passwordChecks.uppercase ? "✓" : "○"}</span>
                     <span>One uppercase letter</span>
                   </div>
-
                   <div
                     className="flex items-center gap-2"
                     style={{
@@ -608,7 +570,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                     <span>{passwordChecks.lowercase ? "✓" : "○"}</span>
                     <span>One lowercase letter</span>
                   </div>
-
                   <div
                     className="flex items-center gap-2"
                     style={{
@@ -618,7 +579,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                     <span>{passwordChecks.number ? "✓" : "○"}</span>
                     <span>One number</span>
                   </div>
-
                   <div
                     className="flex items-center gap-2"
                     style={{
@@ -631,7 +591,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                 </div>
               )}
             </div>
-
             {/* Terms */}
             <div className="flex items-start gap-2.5">
               <button
@@ -646,7 +605,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
               >
                 {agreed && <span className="text-white text-xs">✓</span>}
               </button>
-
               <span
                 className="text-sm"
                 style={{
@@ -672,7 +630,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
                 </span>
               </span>
             </div>
-
             {/* Buttons */}
             <div className="flex gap-3">
               <button
@@ -691,7 +648,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
               >
                 ← Back
               </button>
-
               <button
                 type="submit"
                 disabled={loading || !agreed || !isPasswordValid}
@@ -716,7 +672,6 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
             </div>
           </form>
         )}
-
         {/* Login */}
         <p
           className="text-center text-sm mt-6"
@@ -725,19 +680,16 @@ export default function RegisterPage({ onSwitch }: RegisterPageProps) {
           }}
         >
           Already have an account?{" "}
-          <button
-            type="button"
-            onClick={onSwitch}
+          <Link
+            href="/Login"
             className="font-semibold"
             style={{
               color: "#6c3bff",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
+              textDecoration: "none",
             }}
           >
             Sign in
-          </button>
+          </Link>
         </p>
       </div>
     </AuthPanel>
