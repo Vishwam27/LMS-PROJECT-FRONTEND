@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { CldImage } from "next-cloudinary";
 
 type Category = {
@@ -391,9 +392,12 @@ export default function InstructorDashboardPage() {
 
             <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-purple-100">
               {instructor.avatarUrl ? (
-                <img
+                <Image
                   src={instructor.avatarUrl}
                   alt={instructor.name}
+                  width={40}
+                  height={40}
+                  unoptimized
                   className="h-full w-full object-cover"
                 />
               ) : (

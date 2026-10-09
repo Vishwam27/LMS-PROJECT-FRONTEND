@@ -612,7 +612,7 @@ export default function RegisterPage() {
                   lineHeight: 1.5,
                 }}
               >
-                I agree to CourseMaster's{" "}
+                I agree to CourseMaster&apos;s{" "}
                 <span
                   style={{
                     color: "#6c3bff",

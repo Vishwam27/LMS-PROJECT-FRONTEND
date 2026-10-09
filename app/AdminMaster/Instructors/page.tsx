@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 type Instructor = {
   id: string;
@@ -41,93 +42,93 @@ export default function AdminInstructorsPage() {
   // FETCH PENDING INSTRUCTORS
   // =========================================================
 
-  const fetchPendingInstructors = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const token = localStorage.getItem("token");
-      const storedUser = localStorage.getItem("user");
-
-      if (!token || !storedUser) {
-        router.replace("/");
-        return;
-      }
-
-      let currentUser;
-
-      try {
-        currentUser = JSON.parse(storedUser);
-      } catch {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        router.replace("/");
-        return;
-      }
-
-      // Frontend protection
-      if (currentUser.role !== "ADMIN") {
-        setError(
-          "You do not have permission to access this page."
-        );
-        return;
-      }
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/instructors/pending`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        router.replace("/");
-        return;
-      }
-
-      if (response.status === 403) {
-        setError(
-          "You do not have permission to access this page."
-        );
-        return;
-      }
-
-      const data: PendingResponse & {
-        message?: string;
-      } = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Unable to load pending instructors"
-        );
-      }
-
-      setInstructors(data.instructors);
-    } catch (error) {
-      console.error(
-        "Pending instructors error:",
-        error
-      );
-
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to load pending instructors"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchPendingInstructors = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const token = localStorage.getItem("token");
+        const storedUser = localStorage.getItem("user");
+
+        if (!token || !storedUser) {
+          router.replace("/");
+          return;
+        }
+
+        let currentUser;
+
+        try {
+          currentUser = JSON.parse(storedUser);
+        } catch {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          router.replace("/");
+          return;
+        }
+
+        // Frontend protection
+        if (currentUser.role !== "ADMIN") {
+          setError(
+            "You do not have permission to access this page."
+          );
+          return;
+        }
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/admin/instructors/pending`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          router.replace("/");
+          return;
+        }
+
+        if (response.status === 403) {
+          setError(
+            "You do not have permission to access this page."
+          );
+          return;
+        }
+
+        const data: PendingResponse & {
+          message?: string;
+        } = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Unable to load pending instructors"
+          );
+        }
+
+        setInstructors(data.instructors);
+      } catch (error) {
+        console.error(
+          "Pending instructors error:",
+          error
+        );
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Unable to load pending instructors"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPendingInstructors();
-  }, []);
+  }, [router]);
 
   // =========================================================
   // OPEN ACTION MODAL
@@ -428,7 +429,7 @@ export default function AdminInstructorsPage() {
               </h3>
 
               <p className="mt-1 text-xs leading-5 text-slate-400">
-                You're all caught up. New instructor
+                You&apos;re all caught up. New instructor
                 applications will appear here.
               </p>
             </div>
@@ -471,9 +472,12 @@ export default function AdminInstructorsPage() {
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
                             {instructor.avatarUrl ? (
-                              <img
+                              <Image
                                 src={instructor.avatarUrl}
                                 alt={instructor.name}
+                                width={44}
+                                height={44}
+                                unoptimized
                                 className="h-11 w-11 rounded-xl object-cover"
                               />
                             ) : (
@@ -558,9 +562,12 @@ export default function AdminInstructorsPage() {
                   >
                     <div className="flex items-start gap-3">
                       {instructor.avatarUrl ? (
-                        <img
+                        <Image
                           src={instructor.avatarUrl}
                           alt={instructor.name}
+                          width={48}
+                          height={48}
+                          unoptimized
                           className="h-12 w-12 shrink-0 rounded-xl object-cover"
                         />
                       ) : (

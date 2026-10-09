@@ -19,7 +19,7 @@ type AuthUser = {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loginWithGoogle } = useAuth();
+  const { login, logout } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,11 +41,12 @@ export default function LoginPage() {
       }
 
       if (user.status === "PENDING") {
+        logout();
         throw new Error(
           "Your instructor account is pending admin approval.",
         );
       }
-
+      logout();
       throw new Error(
         "Your instructor application was rejected. Please contact an administrator.",
       );
@@ -55,7 +56,7 @@ export default function LoginPage() {
       router.replace("/Learner/Dashboard");
       return;
     }
-
+    logout();
     throw new Error("Unable to determine account access.");
   };
 

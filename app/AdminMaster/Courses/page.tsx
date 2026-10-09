@@ -800,7 +800,7 @@ export default function AdminCoursesPage() {
             <p className="mt-2 text-sm leading-6 text-slate-500">
               Are you sure you want to delete{" "}
               <span className="font-semibold text-slate-800">
-                "{courseToDelete.title}"
+                &quot;{courseToDelete.title}&quot;
               </span>
               ?
             </p>

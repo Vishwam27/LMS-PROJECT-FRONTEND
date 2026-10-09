@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Sidebar from "../../components/learner/SideBar";
 
 type User = {
@@ -525,9 +526,12 @@ export default function SettingsPage() {
                   "
                 >
                   {user.avatarUrl ? (
-                    <img
+                    <Image
                       src={user.avatarUrl}
                       alt={user.name}
+                      width={80}
+                      height={80}
+                      unoptimized
                       className="
                         h-20
                         w-20

@@ -127,100 +127,104 @@ export default function InstructorCourseDetailsPage() {
   // FETCH COURSE
   // =========================================================
 
-  const fetchCourse = async () => {
-    if (!courseId) return;
-
-    try {
-      setLoading(true);
-      setError("");
-
-      const token = localStorage.getItem("token");
-      const storedUser =
-        localStorage.getItem("user");
-
-      if (!token || !storedUser) {
-        router.replace("/");
-        return;
-      }
-
-      let currentUser;
+  useEffect(() => {
+    const fetchCourse = async () => {
+      if (!courseId) return;
 
       try {
-        currentUser = JSON.parse(storedUser);
-      } catch {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        router.replace("/");
-        return;
-      }
+        setLoading(true);
+        setError("");
 
-      if (
-        currentUser.role !== "INSTRUCTOR" ||
-        currentUser.status !== "APPROVED"
-      ) {
-        setError(
-          "Your instructor account is not approved."
-        );
-        return;
-      }
+        const token = localStorage.getItem("token");
+        const storedUser =
+          localStorage.getItem("user");
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/instructor/courses/${courseId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        if (!token || !storedUser) {
+          router.replace("/");
+          return;
         }
-      );
 
-      if (response.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        router.replace("/");
-        return;
-      }
+        let currentUser;
 
-      if (response.status === 403) {
+        try {
+          currentUser = JSON.parse(storedUser);
+        } catch {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          router.replace("/");
+          return;
+        }
+
+        if (
+          currentUser.role !== "INSTRUCTOR" ||
+          currentUser.status !== "APPROVED"
+        ) {
+          setError(
+            "Your instructor account is not approved."
+          );
+          return;
+        }
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/instructor/courses/${courseId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          router.replace("/");
+          return;
+        }
+
+        if (response.status === 403) {
+          setError(
+            "You do not have permission to access this course."
+          );
+          return;
+        }
+
+        if (response.status === 404) {
+          setError(
+            "Course not found or you do not have access to this course."
+          );
+          return;
+        }
+
+        const data: CourseResponse & {
+          message?: string;
+        } = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Unable to load course"
+          );
+        }
+
+        setCourse(data.course);
+      } catch (error) {
+        console.error(
+          "Instructor course details error:",
+          error
+        );
+
         setError(
-          "You do not have permission to access this course."
+          error instanceof Error
+            ? error.message
+            : "Unable to load course"
         );
-        return;
+      } finally {
+        setLoading(false);
       }
+    };
 
-      if (response.status === 404) {
-        setError(
-          "Course not found or you do not have access to this course."
-        );
-        return;
-      }
-
-      const data: CourseResponse & {
-        message?: string;
-      } = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Unable to load course"
-        );
-      }
-
-      setCourse(data.course);
-    } catch (error) {
-      console.error(
-        "Instructor course details error:",
-        error
-      );
-
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to load course"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchCourse();
+  }, [courseId, router]);
 
   // =========================================================
   // FETCH CATEGORIES
@@ -259,10 +263,6 @@ export default function InstructorCourseDetailsPage() {
       setCategoryLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchCourse();
-  }, [courseId]);
 
   // =========================================================
   // FORMAT DATE
@@ -1252,7 +1252,7 @@ export default function InstructorCourseDetailsPage() {
             <p className="mt-2 text-sm leading-6 text-slate-500">
               Are you sure you want to delete{" "}
               <span className="font-semibold text-slate-800">
-                "{course.title}"
+                &quot;{course.title}&quot;
               </span>
               ?
             </p>
@@ -1323,7 +1323,7 @@ export default function InstructorCourseDetailsPage() {
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 You selected{" "}
                 <span className="font-semibold text-slate-800">
-                  "{lessonToDelete.title}"
+                  &quot;{lessonToDelete.title}&quot;
                 </span>
                 .
               </p>
@@ -1386,7 +1386,7 @@ export default function InstructorCourseDetailsPage() {
               </p>
 
               <p className="mt-2 text-base font-bold text-red-600">
-                "{lessonToDelete.title}"
+                &quot;{lessonToDelete.title}&quot;
               </p>
 
               <div className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3">

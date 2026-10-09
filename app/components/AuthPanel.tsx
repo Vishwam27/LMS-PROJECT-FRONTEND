@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 
 const STATS = [
   { value: '50K+', label: 'Demo Active Learners' },
@@ -78,9 +79,12 @@ export default function AuthPanel({ children }: AuthPanelProps) {
 
         {/* Hero image + overlay */}
         <div className="relative z-10 mx-10 rounded-2xl overflow-hidden" style={{ height: 280 }}>
-          <img
+          <Image
             src="https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?w=900&h=560&fit=crop&auto=format"
             alt="Student learning online"
+            width={900}
+            height={560}
+            unoptimized
             className="w-full h-full object-cover"
             style={{ filter: 'brightness(0.55) saturate(0.8)' }}
           />

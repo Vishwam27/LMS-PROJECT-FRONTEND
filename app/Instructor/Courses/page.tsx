@@ -307,7 +307,7 @@ export default function InstructorCoursesPage() {
             </h3>
 
             <p className="mt-1 text-xs leading-5 text-slate-400">
-              You haven't created any courses yet.
+              You haven&apos;t created any courses yet.
             </p>
 
             <button

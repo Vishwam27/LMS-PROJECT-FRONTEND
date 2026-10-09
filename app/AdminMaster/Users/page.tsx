@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 type UserRole = "STUDENT" | "INSTRUCTOR" | "ADMIN";
 
@@ -631,9 +632,12 @@ export default function AdminUsersPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {user.avatarUrl ? (
-                            <img
+                            <Image
                               src={user.avatarUrl}
                               alt={user.name}
+                              width={40}
+                              height={40}
+                              unoptimized
                               className="h-10 w-10 rounded-xl object-cover"
                             />
                           ) : (
@@ -725,9 +729,12 @@ export default function AdminUsersPage() {
                 >
                   <div className="flex items-start gap-3">
                     {user.avatarUrl ? (
-                      <img
+                      <Image
                         src={user.avatarUrl}
                         alt={user.name}
+                        width={44}
+                        height={44}
+                        unoptimized
                         className="h-11 w-11 rounded-xl object-cover"
                       />
                     ) : (

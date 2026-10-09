@@ -584,7 +584,7 @@ export default function AdminCourseDetailsPage() {
               </p>
 
               <p className="mt-1 text-xs text-slate-400">
-                This course doesn't contain any lessons.
+                This course doesn&apos;t contain any lessons.
               </p>
             </div>
           ) : (
@@ -697,7 +697,7 @@ export default function AdminCourseDetailsPage() {
             <p className="mt-2 text-sm leading-6 text-slate-500">
               Are you sure you want to delete{" "}
               <span className="font-semibold text-slate-800">
-                "{lessonToDelete.title}"
+                &quot;{lessonToDelete.title}&quot;
               </span>
               ?
             </p>

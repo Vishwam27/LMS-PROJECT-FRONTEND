@@ -31,7 +31,7 @@ export default function NotFound() {
         </h1>
 
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-500">
-          Sorry, we couldn't find the page you're
+          Sorry, we couldn&apos;t find the page you&apos;re
           looking for. It may have been moved,
           deleted, or the URL may be incorrect.
         </p>

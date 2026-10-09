@@ -1,21 +1,24 @@
 {
   "name": "Lms-Frontend",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "LMS web app — Next.js, React, TypeScript, Tailwind CSS",
   "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.7.1",
     "@react-oauth/google": "^0.13.5",
     "@tailwindcss/postcss": "^4.3.3",
     "lucide-react": "^1.31.0",
     "next": "^16.3.0",
     "next-cloudinary": "^6.18.8",
-    "postcss": "^8.5.26",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
@@ -23,11 +26,10 @@
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "autoprefixer": "^10.5.4",
     "eslint": "^10.8.1",
     "eslint-config-next": "^16.3.0",
     "postcss": "^8.5.26",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.2"
+    "typescript": "^6.0.3"
   }
 }

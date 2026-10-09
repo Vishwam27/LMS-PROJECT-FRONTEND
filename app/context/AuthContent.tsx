@@ -4,11 +4,12 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState,
+  useMemo,
+  useSyncExternalStore,
   ReactNode,
 } from "react";
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -20,7 +21,11 @@ interface User {
   avatarUrl?: string | null;
   bio?: string | null;
 }
-
+interface AuthResponse {
+  token?: string;
+  user?: User;
+  message?: string;
+}
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -50,76 +55,166 @@ const AuthContext =
     undefined
   );
 
+// =========================================================
+// LOCAL STORAGE SESSION STORE
+// ---------------------------------------------------------
+// The login session lives in localStorage ("token" + "user").
+// React reads it with useSyncExternalStore, the recommended
+// way to read browser storage. It is safe for server
+// rendering and avoids calling setState inside an effect.
+// =========================================================
+
+const TOKEN_KEY = "token";
+const USER_KEY = "user";
+
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+
+  // "storage" fires when ANOTHER tab changes localStorage
+  window.addEventListener("storage", listener);
+
+  return () => {
+    listeners.delete(listener);
+    window.removeEventListener("storage", listener);
+  };
+}
+
+function notifyListeners() {
+  listeners.forEach((listener) => listener());
+}
+
+function readStorage(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    // Storage can be blocked (private mode, etc.)
+    return null;
+  }
+}
+
+const getStoredToken = () => readStorage(TOKEN_KEY);
+const getStoredUser = () => readStorage(USER_KEY);
+
+// On the server there is no localStorage
+const getServerSnapshot = (): string | null => null;
+
+// "loading" is true on the server and while hydrating,
+// and becomes false as soon as the browser has taken over
+const subscribeToNothing = () => () => {};
+const getLoadedSnapshot = () => false;
+const getLoadingServerSnapshot = () => true;
+
+type StoredSession =
+  | { status: "empty" }
+  | { status: "valid"; token: string; user: User }
+  | { status: "corrupted"; error: unknown };
+
+function parseStoredSession(
+  token: string | null,
+  rawUser: string | null
+): StoredSession {
+  if (!token || !rawUser) {
+    return { status: "empty" };
+  }
+
+  try {
+    return {
+      status: "valid",
+      token,
+      user: JSON.parse(rawUser) as User,
+    };
+  } catch (error) {
+    return { status: "corrupted", error };
+  }
+}
+
+// =========================================================
+// SAVE / CLEAR AUTH SESSION
+// =========================================================
+
+function saveAuthSession(
+  authToken: string,
+  authUser: User
+) {
+  localStorage.setItem(
+    TOKEN_KEY,
+    authToken
+  );
+
+  localStorage.setItem(
+    USER_KEY,
+    JSON.stringify(authUser)
+  );
+
+  notifyListeners();
+}
+
+function clearAuthSession() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+
+  notifyListeners();
+}
+
 export function AuthProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [user, setUser] =
-    useState<User | null>(null);
-
-  const [token, setToken] =
-    useState<string | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
   // =========================================================
   // RESTORE LOGIN AFTER PAGE REFRESH
   // =========================================================
 
+  const storedToken = useSyncExternalStore(
+    subscribe,
+    getStoredToken,
+    getServerSnapshot
+  );
+
+  const storedUser = useSyncExternalStore(
+    subscribe,
+    getStoredUser,
+    getServerSnapshot
+  );
+
+  const loading = useSyncExternalStore(
+    subscribeToNothing,
+    getLoadedSnapshot,
+    getLoadingServerSnapshot
+  );
+
+  const session = useMemo(
+    () =>
+      parseStoredSession(
+        storedToken,
+        storedUser
+      ),
+    [storedToken, storedUser]
+  );
+
+  const user =
+    session.status === "valid"
+      ? session.user
+      : null;
+
+  const token =
+    session.status === "valid"
+      ? session.token
+      : null;
+
+  // Saved login data is broken (not valid JSON) -> clear it
   useEffect(() => {
-    try {
-      const storedToken =
-        localStorage.getItem("token");
-
-      const storedUser =
-        localStorage.getItem("user");
-
-      if (storedToken && storedUser) {
-        const parsedUser: User =
-          JSON.parse(storedUser);
-
-        setToken(storedToken);
-        setUser(parsedUser);
-      }
-    } catch (error) {
+    if (session.status === "corrupted") {
       console.error(
         "Failed to restore authentication:",
-        error
+        session.error
       );
 
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
-      setToken(null);
-      setUser(null);
-    } finally {
-      setLoading(false);
+      clearAuthSession();
     }
-  }, []);
-
-  // =========================================================
-  // SAVE AUTH SESSION
-  // =========================================================
-
-  const saveAuthSession = (
-    authToken: string,
-    authUser: User
-  ) => {
-    localStorage.setItem(
-      "token",
-      authToken
-    );
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify(authUser)
-    );
-
-    setToken(authToken);
-    setUser(authUser);
-  };
+  }, [session]);
 
   // =========================================================
   // EMAIL LOGIN
@@ -144,7 +239,7 @@ export function AuthProvider({
         }
       );
 
-      let data: any = null;
+      let data: AuthResponse | null = null;
 
       try {
         data = await response.json();
@@ -155,11 +250,7 @@ export function AuthProvider({
       }
 
       if (!response.ok) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        setToken(null);
-        setUser(null);
+        clearAuthSession();
 
         throw new Error(
           data?.message || "Unable to login."
@@ -220,7 +311,7 @@ export function AuthProvider({
         }
       );
 
-      let data: any = null;
+      let data: AuthResponse | null = null;
 
       try {
         data = await response.json();
@@ -355,11 +446,7 @@ export function AuthProvider({
   // =========================================================
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    setToken(null);
-    setUser(null);
+    clearAuthSession();
   };
 
   return (

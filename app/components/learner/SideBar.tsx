@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   LayoutDashboard,
   BookOpen,
@@ -14,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 
-import { useAuth } from "../../context/AuthContent";
+import { useAuth, type User } from "../../context/AuthContent";
 
 const NAV_ITEMS = [
   {
@@ -186,10 +187,9 @@ export default function Sidebar() {
           transition-opacity
           duration-300
           lg:hidden
-          ${
-            mobileOpen
-              ? "pointer-events-auto opacity-100"
-              : "pointer-events-none opacity-0"
+          ${mobileOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
           }
         `}
       />
@@ -214,10 +214,9 @@ export default function Sidebar() {
           ease-in-out
           lg:hidden
 
-          ${
-            mobileOpen
-              ? "translate-x-0"
-              : "-translate-x-full"
+          ${mobileOpen
+            ? "translate-x-0"
+            : "-translate-x-full"
           }
         `}
         style={{
@@ -321,14 +320,13 @@ export default function Sidebar() {
                       duration-200
                       active:scale-[0.99]
 
-                      ${
-                        active
-                          ? `
+                      ${active
+                        ? `
                             border
                             border-[#6c3bff]/60
                             bg-[#6c3bff]/16
                           `
-                          : `
+                        : `
                             border
                             border-transparent
                             hover:bg-white/[0.035]
@@ -479,10 +477,9 @@ export default function Sidebar() {
             transition-all
             duration-300
 
-            ${
-              collapsed
-                ? "justify-center px-0"
-                : "px-5"
+            ${collapsed
+              ? "justify-center px-0"
+              : "px-5"
             }
           `}
         >
@@ -494,10 +491,9 @@ export default function Sidebar() {
               transition-all
               duration-300
 
-              ${
-                collapsed
-                  ? "justify-center"
-                  : "gap-3"
+              ${collapsed
+                ? "justify-center"
+                : "gap-3"
               }
             `}
           >
@@ -514,10 +510,9 @@ export default function Sidebar() {
                 transition-all
                 duration-200
 
-                ${
-                  collapsed
-                    ? "w-0 opacity-0"
-                    : "w-auto opacity-100"
+                ${collapsed
+                  ? "w-0 opacity-0"
+                  : "w-auto opacity-100"
                 }
               `}
               style={{
@@ -602,10 +597,9 @@ export default function Sidebar() {
                         transition-all
                         duration-200
 
-                        ${
-                          collapsed
-                            ? "justify-center"
-                            : "gap-3 px-3.5"
+                        ${collapsed
+                          ? "justify-center"
+                          : "gap-3 px-3.5"
                         }
                       `}
                       style={{
@@ -648,10 +642,9 @@ export default function Sidebar() {
                           transition-all
                           duration-200
 
-                          ${
-                            collapsed
-                              ? "w-0 translate-x-2 opacity-0"
-                              : "w-auto translate-x-0 opacity-100"
+                          ${collapsed
+                            ? "w-0 translate-x-2 opacity-0"
+                            : "w-auto translate-x-0 opacity-100"
                           }
                         `}
                       >
@@ -706,10 +699,9 @@ export default function Sidebar() {
             pb-4
             transition-all
             duration-300
-            ${
-              collapsed
-                ? "px-2"
-                : "px-4"
+            ${collapsed
+              ? "px-2"
+              : "px-4"
             }
           `}
         >
@@ -867,7 +859,7 @@ function Avatar({
   initials,
   size = "sm",
 }: {
-  user: any;
+  user: User | null;
   userName: string;
   initials: string;
   size?: "sm" | "md";
@@ -879,9 +871,12 @@ function Avatar({
 
   if (user?.avatarUrl) {
     return (
-      <img
+      <Image
         src={user.avatarUrl}
         alt={userName}
+        width={size === "md" ? 56 : 36}
+        height={size === "md" ? 56 : 36}
+        unoptimized
         className={`
           ${sizeClass}
           shrink-0

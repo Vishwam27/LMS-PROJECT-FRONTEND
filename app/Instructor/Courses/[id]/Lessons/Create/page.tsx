@@ -42,9 +42,8 @@ export default function CreateLessonPage() {
   // =========================================================
 
   useEffect(() => {
+    // A missing course ID is handled while rendering (see "missingCourseId" below)
     if (!courseId) {
-      setError("Course ID is missing.");
-      setLoadingCourse(false);
       return;
     }
 
@@ -244,10 +243,20 @@ export default function CreateLessonPage() {
   };
 
   // =========================================================
+  // DERIVED STATE (worked out during render, no effect needed)
+  // =========================================================
+
+  const missingCourseId = !courseId;
+  const isLoadingCourse = loadingCourse && !missingCourseId;
+  const pageError = missingCourseId
+    ? "Course ID is missing."
+    : error;
+
+  // =========================================================
   // LOADING
   // =========================================================
 
-  if (loadingCourse) {
+  if (isLoadingCourse) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="text-center">
@@ -265,7 +274,7 @@ export default function CreateLessonPage() {
   // ERROR
   // =========================================================
 
-  if (error && !course) {
+  if (pageError && !course) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
         <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
@@ -278,7 +287,7 @@ export default function CreateLessonPage() {
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            {error}
+            {pageError}
           </p>
 
           <button

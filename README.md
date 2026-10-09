@@ -1,604 +1,226 @@
-# 🎓 CourseMaster LMS — Frontend
+# CourseMaster LMS — Frontend
 
-A modern, full-stack **Learning Management System (LMS)** frontend built with **Next.js, React, TypeScript, and Tailwind CSS**.
+A learning management system frontend built with **Next.js, React, TypeScript, and Tailwind CSS**. CourseMaster provides separate experiences for learners, instructors, and administrators, with REST API integration for authentication, courses, enrollment, and learning progress.
 
-CourseMaster provides separate experiences for **Students, Instructors, and Administrators**, with real backend integration for authentication, course management, enrollment, lesson delivery, and learning-progress tracking.
+[Live Demo](https://coursemasterlms.vercel.app/) · [Frontend Repository](https://github.com/Vishwam27/LMS-PROJECT-FRONTEND) · [Backend Repository](https://github.com/Vishwam27/LMS-PROJECT-BACKEND)
 
-> **Backend Repository:** [LMS-PROJECT-BACKEND](https://github.com/Vishwam27/LMS-PROJECT-BACKEND)
+## Features
 
----
+### Learners
 
-## 🚀 Live Demo
+- Register with email and password or sign in with Google.
+- Browse courses and filter by category, level, and search text.
+- View course details and enroll in courses.
+- View enrolled courses in grid or list layouts.
+- Watch lesson videos and save lesson completion through the backend.
+- Resume at the next lesson returned by the progress API.
+- View enrollment totals, course progress, recommendations, and weekly activity.
+- Update profile name and bio, change password, or delete an account.
 
-**Frontend:** https://coursemasterlms.vercel.app/
+### Instructors
 
----
+- Register as an instructor and wait for administrator approval.
+- View course, lesson, and student statistics.
+- Create, edit, and delete courses.
+- Add and delete lessons.
+- Supply course image URLs and lesson video URLs.
+- Change account password.
 
-## ✨ Features
+### Administrators
 
-- 🔐 JWT authentication
-- 🔑 Google OAuth authentication
-- 👥 Role-based access control
-- 🎓 Student dashboard
-- 👨‍🏫 Instructor dashboard
-- 🛡️ Admin dashboard
-- 📚 Course discovery and filtering
-- 🔎 Course search
-- 📖 Course details
-- 📝 Course enrollment
-- 🎥 Lesson/video learning
-- ✅ Lesson completion tracking
-- 📈 Course progress tracking
-- 👨‍🏫 Instructor course management
-- 📚 Lesson management
-- 🧑‍💼 Instructor approval workflow
-- 👤 User management
-- ☁️ Cloudinary media integration
-- 📱 Responsive design
-- 🌐 Production deployment with Vercel
+- View platform statistics.
+- Search and filter users, change their roles, and delete users.
+- Review pending instructor applications and approve or reject them.
+- Browse and filter courses, inspect course lessons, and delete courses or lessons.
+- Change account password.
 
----
+### Shared interface
 
-# 👤 User Roles
+- Responsive layouts with mobile navigation and a collapsible learner sidebar.
+- Shared authentication panel and Google sign-in button.
+- Loading indicators, empty states, error messages, and confirmation dialogs.
+- Password validation and a registration strength indicator.
+- Backend availability indicator on the login page.
+- Custom not-found page.
 
-## 🎓 Student / Learner
+## Tech Stack
 
-Students can:
-
-- Register an account
-- Login with email and password
-- Login with Google
-- Explore available courses
-- Search courses
-- Filter courses
-- View course details
-- Enroll in courses
-- View enrolled courses
-- Open course lessons
-- Watch course videos
-- Mark lessons as completed
-- Track course progress
-- Manage their profile and settings
-
----
-
-## 👨‍🏫 Instructor
-
-Approved instructors can:
-
-- Access an instructor dashboard
-- View course statistics
-- Create courses
-- Edit courses
-- Delete courses
-- Publish/unpublish courses
-- Add lessons
-- Edit lessons
-- Delete lessons
-- Manage course content
-- View course-related statistics
-
-Instructor registration follows an approval workflow controlled by administrators.
-
----
-
-## 🛡️ Administrator
-
-Administrators can:
-
-- View platform statistics
-- Manage users
-- Manage courses
-- Manage instructors
-- View pending instructor applications
-- Approve instructors
-- Reject instructors
-- Manage courses and lessons
-
----
-
-# 📚 Main Learning Flow
-
-```text
-Register / Login
-       ↓
-Explore Courses
-       ↓
-Course Details
-       ↓
-     Enroll
-       ↓
-  My Courses
-       ↓
-   Learn Course
-       ↓
-Watch Lessons
-       ↓
-Complete Lesson
-       ↓
-Track Progress
-```
-
-The frontend communicates with the backend through REST APIs while authentication and application state are handled by the frontend.
-
----
-
-# 🛠️ Tech Stack
-
-| Category | Technology |
-|---|---|
-| Framework | Next.js 16 |
-| UI Library | React 19 |
-| Language | TypeScript |
-| Styling | Tailwind CSS 4 |
-| Authentication | JWT + Google OAuth |
-| API | REST API |
-| Data Fetching | TanStack React Query |
-| Forms | React Hook Form |
-| Media | Cloudinary |
-| Cloudinary Integration | next-cloudinary |
+| Area | Implementation |
+| --- | --- |
+| Framework | Next.js 16 with the App Router |
+| UI | React 19 |
+| Language | TypeScript 6 with strict checking |
+| Styling | Tailwind CSS 4 and PostCSS |
 | Icons | Lucide React |
-| Backend | Node.js + Express |
-| Database | PostgreSQL |
-| ORM | Prisma |
-| Frontend Deployment | Vercel |
+| Authentication UI | React Context and `@react-oauth/google` |
+| Session state | Browser localStorage and `useSyncExternalStore` |
+| API requests | Native Fetch API |
+| Forms | React state and client-side validation |
+| Images | `next-cloudinary` and `next/image` |
+| Lesson playback | Native HTML video player |
+| Code checks | ESLint and TypeScript |
 
----
+The frontend connects to a separate backend. Database operations, password handling, token verification, and permission enforcement belong to that backend.
 
-# 🏗️ Application Architecture
+## Getting Started
 
-CourseMaster uses a separated frontend and backend architecture.
+### Prerequisites
 
-```text
-                        ┌──────────────────────┐
-                        │    Next.js Frontend  │
-                        │                      │
-                        │  Student             │
-                        │  Instructor          │
-                        │  Admin               │
-                        └──────────┬───────────┘
-                                   │
-                                   │ REST API
-                                   ▼
-                        ┌──────────────────────┐
-                        │    Express Backend   │
-                        │                      │
-                        │ Authentication       │
-                        │ Courses              │
-                        │ Enrollment           │
-                        │ Lessons              │
-                        │ Progress             │
-                        │ Instructor           │
-                        │ Admin                │
-                        └──────────┬───────────┘
-                                   │
-                                   ▼
-                        ┌──────────────────────┐
-                        │ PostgreSQL + Prisma  │
-                        └──────────────────────┘
+- Node.js **20.9.0 or newer** and npm.
+- A running, compatible CourseMaster backend.
+- A Google OAuth client ID.
+- A Cloudinary cloud name for Cloudinary-backed course images.
 
-                                   │
-                                   ▼
-
-                        ┌──────────────────────┐
-                        │      Cloudinary      │
-                        │   Images / Videos    │
-                        └──────────────────────┘
-```
-
----
-
-# 📁 Project Structure
-
-```text
-LMS-PROJECT-FRONTEND/
-│
-├── app/
-│   ├── layout.tsx
-│   ├── page.tsx
-│   ├── globals.css
-│   ├── not-found.tsx
-│   │
-│   ├── context/
-│   │   └── AuthContent.tsx
-│   │
-│   ├── pages/
-│   │   ├── LoginPage.tsx
-│   │   └── RegisterPage.tsx
-│   │
-│   ├── components/
-│   │   ├── AuthPanel.tsx
-│   │   └── learner/
-│   │       └── SideBar.tsx
-│   │
-│   ├── Learner/
-│   │   ├── Explore/
-│   │   ├── Courses/
-│   │   └── My-Courses/
-│   │
-│   ├── Instructor/
-│   │   ├── Dashboard/
-│   │   └── Courses/
-│   │
-│   └── AdminMaster/
-│       ├── Users/
-│       ├── Courses/
-│       └── Instructors/
-│
-├── public/
-├── package.json
-├── next.config.ts
-├── postcss.config.mjs
-├── tsconfig.json
-└── README.md
-```
-
----
-
-# 🔐 Authentication
-
-CourseMaster supports both traditional authentication and Google OAuth.
-
-## Email / Password
-
-```text
-Register
-   ↓
-Backend validates user information
-   ↓
-Password is securely processed
-   ↓
-User account created
-   ↓
-Login
-   ↓
-JWT generated
-   ↓
-Frontend stores authentication state
-```
-
-## Google OAuth
-
-```text
-Google Sign-In
-      ↓
-Google OAuth
-      ↓
-Backend verifies identity
-      ↓
-User created / authenticated
-      ↓
-JWT generated
-      ↓
-Authenticated application
-```
-
-Google-authenticated users can enter the platform without creating a separate local password.
-
----
-
-# 📡 Backend API Integration
-
-The frontend consumes the CourseMaster Express REST API.
-
-Main API areas include:
-
-| Endpoint Area | Purpose |
-|---|---|
-| `/api/auth` | Registration, login, authentication and profile |
-| `/api/courses` | Course listing and course details |
-| `/api/categories` | Course categories |
-| `/api/enrollment` | Enrollment and learning progress |
-| `/api/dashboard` | Dashboard information |
-| `/api/instructor` | Instructor operations |
-| `/api/admin` | Administrative operations |
-
-Protected requests use JWT authentication:
-
-```http
-Authorization: Bearer <JWT_TOKEN>
-```
-
-The backend contains the complete business logic, database operations, authorization, and validation.
-
----
-
-# 📈 Learning Progress
-
-CourseMaster uses backend-persisted learning progress rather than relying only on frontend state.
-
-Example workflow:
-
-```text
-Student opens course
-        ↓
-Frontend requests lessons
-        ↓
-Student watches lesson
-        ↓
-Student clicks "Complete Lesson"
-        ↓
-Frontend sends progress request
-        ↓
-Backend updates LessonProgress
-        ↓
-Course progress recalculated
-        ↓
-Updated progress shown in UI
-```
-
-This allows learning progress to persist between sessions.
-
----
-
-# 📝 Course Enrollment
-
-The enrollment process works through the backend database.
-
-```text
-Student
-   ↓
-Select Course
-   ↓
-Click "Enroll Now"
-   ↓
-Enrollment API
-   ↓
-Enrollment stored in PostgreSQL
-   ↓
-Course appears in My Courses
-```
-
-This creates a real relationship between the authenticated user and the selected course.
-
----
-
-# 🎥 Video & Media
-
-CourseMaster uses **Cloudinary** for media management.
-
-Cloudinary is used for:
-
-- Course images
-- Instructor images
-- Lesson videos
-- Other uploaded media
-
-The application uses `next-cloudinary` where appropriate for optimized media rendering.
-
----
-
-# 🎨 UI Design
-
-The application uses a modern LMS/SaaS-style interface with a custom navy and violet design system.
-
-### Brand Colors
-
-```text
-Navy 950   #080c1e
-Navy 900   #0f1428
-Navy 800   #161d3a
-Violet 600 #6c3bff
-Violet 400 #a880ff
-Slate 50   #f8fafc
-```
-
-The UI focuses on:
-
-- Clean layouts
-- Consistent spacing
-- Responsive components
-- Clear navigation
-- Dashboard-style interfaces
-- Modern course cards
-- Responsive sidebar navigation
-- Mobile-friendly interactions
-
----
-
-# 📱 Responsive Design
-
-CourseMaster is designed for:
-
-- 💻 Desktop
-- 💻 Laptop
-- 📱 Tablet
-- 📱 Mobile
-
-Responsive behavior includes:
-
-- Mobile sidebar
-- Responsive navigation
-- Adaptive course grids
-- Mobile-friendly dashboards
-- Responsive course-learning pages
-
----
-
-# 🔒 Security
-
-The project follows several application-level security practices:
-
-- JWT-based authentication
-- Backend role-based authorization
-- Password hashing with bcrypt
-- Protected API endpoints
-- Google OAuth verification
-- API rate limiting on the backend
-- Environment variables for sensitive configuration
-- No secrets committed to the repository
-
-> Never commit `.env.local`, database credentials, JWT secrets, API keys, or private OAuth credentials.
-
----
-
-# ⚙️ Getting Started
-
-## Prerequisites
-
-Before running the project, make sure you have:
-
-- Node.js 20+
-- npm
-- CourseMaster backend running locally or deployed
-- PostgreSQL configured through the backend
-- Cloudinary account
-- Google OAuth credentials if Google login is enabled
-
----
-
-## 1. Clone the Repository
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/Vishwam27/LMS-PROJECT-FRONTEND.git
-```
-
-Go to the project:
-
-```bash
 cd LMS-PROJECT-FRONTEND
+npm ci
 ```
 
----
+### 2. Configure the environment
 
-## 2. Install Dependencies
+Create `.env.local` in the project root:
 
-```bash
-npm install
-```
-
----
-
-## 3. Configure Environment Variables
-
-Create:
-
-```text
-.env.local
-```
-
-Example:
-
-```env
+```dotenv
 NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 
-For production, replace the local backend URL with the deployed backend URL.
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_API_URL` | Backend origin, without a trailing slash. The frontend appends paths such as `/api/auth/login`. |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google sign-in client ID. The current root layout requires this value, including during production builds. |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud used by course image components. |
 
----
+These `NEXT_PUBLIC_` values are browser-visible configuration. Do not put a Google client secret, Cloudinary API secret, database password, or JWT signing secret in them.
 
-## 4. Run the Development Server
+The backend must allow requests from the frontend origin. Google sign-in must also be configured for the origin where the frontend runs.
+
+### 3. Start development
 
 ```bash
 npm run dev
 ```
 
-Open:
+Open [localhost:3000](http://localhost:3000).
 
-```text
-http://localhost:3000
+### 4. Run checks and build
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+npm start
 ```
 
----
+Set the required environment values before building. `npm start` serves an existing production build.
 
-# 📜 Available Scripts
+## Available Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start development server |
-| `npm run build` | Create production build |
-| `npm start` | Start production server |
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Create a production build |
+| `npm start` | Serve the production build |
 | `npm run lint` | Run ESLint |
+| `npm run typecheck` | Check TypeScript without emitting JavaScript |
 
----
+The repository currently has no automated unit or end-to-end test suite. Lint and type checking do not verify backend behavior or complete user journeys.
 
-# 🔗 Backend Repository
-
-## CourseMaster LMS — Backend
-
-https://github.com/Vishwam27/LMS-PROJECT-BACKEND
-
-The backend handles:
-
-- Express REST APIs
-- Prisma ORM
-- PostgreSQL
-- JWT authentication
-- Google OAuth
-- Role-based access control
-- User management
-- Course management
-- Lesson management
-- Enrollment
-- Learning progress
-- Instructor approval
-- Admin operations
-- Cloudinary integration
-
----
-
-# 🗄️ Database
-
-The backend uses **PostgreSQL** with **Prisma ORM**.
-
-The LMS includes relationships between:
+## Project Structure
 
 ```text
-User
- │
- ├── Enrollment
- │        │
- │        └── Course
- │               │
- │               └── Lesson
- │
- └── LessonProgress
+app/
+├── layout.tsx                  # Root layout and authentication providers
+├── page.tsx                    # Public homepage and course catalog preview
+├── globals.css                 # Global styles
+├── not-found.tsx               # Not-found screen
+├── Login/
+├── Register/
+├── context/
+│   └── AuthContent.tsx          # Authentication and session store
+├── components/
+│   ├── AuthPanel.tsx
+│   ├── BackendStatus.tsx
+│   ├── GoogleAuthButton.tsx
+│   └── learner/SideBar.tsx
+├── Learner/
+│   ├── Dashboard/
+│   ├── Explore/
+│   ├── My-Courses/
+│   ├── My-Account/
+│   └── Courses/[id]/
+│       └── Learn/
+├── Instructor/
+│   ├── Dashboard/
+│   └── Courses/
+│       ├── Create/
+│       └── [id]/
+│           └── Lessons/Create/
+└── AdminMaster/
+    ├── page.tsx                # Admin dashboard
+    ├── Users/
+    ├── Instructors/
+    └── Courses/
+        └── [id]/
 ```
 
-This allows the system to represent real learning relationships instead of relying on hard-coded frontend data.
+Route names follow the directory casing shown above, for example `/Login`, `/Learner/Dashboard`, and `/Instructor/Courses`.
 
----
+## Authentication and Access
 
-# 🎯 Project Goals
+Email/password and Google sign-in send authentication requests to the backend. Successful responses provide a token and user record, stored in localStorage. Protected requests include the token in an `Authorization: Bearer <token>` header.
 
-CourseMaster was built as a practical full-stack portfolio project to demonstrate experience with:
+The auth provider restores saved sessions, clears malformed JSON session data, and subscribes to storage changes across tabs. Its own session helpers also notify subscribers in the current tab.
 
-- Next.js application development
-- React component architecture
-- TypeScript
-- REST API integration
-- Authentication
-- Authorization
-- Role-based systems
-- PostgreSQL
-- Prisma
-- CRUD operations
-- Course enrollment workflows
-- Learning progress tracking
-- Cloud media integration
-- Responsive UI
-- Frontend/backend separation
-- Production deployment
+Login redirects users according to their role:
 
----
+| Role | Destination or behavior |
+| --- | --- |
+| Student | Learner dashboard |
+| Approved instructor | Instructor dashboard |
+| Pending or rejected instructor | Login shows an explanatory message and clears the session |
+| Admin | Admin dashboard |
 
-# 👨‍💻 Author
+Public registration supports learner and instructor accounts. The registration interface indicates that administrator accounts cannot be created there. The backend must enforce account creation rules and permissions; client-side role checks only control the interface.
 
-## Vishwam Patel
-
-**Computer Engineering Graduate | Full-Stack Developer**
-
-### Technologies
+## Learning Flow
 
 ```text
-Next.js
-React
-TypeScript
-Node.js
-Express
-PostgreSQL
-Prisma
-Cloudinary
+Register / Sign in
+        ↓
+Explore courses → View course details → Enroll
+                                         ↓
+                                    My Courses
+                                         ↓
+                              Open the lesson player
+                                         ↓
+                           Save completion and continue
+                                         ↓
+                            View updated course progress
 ```
+
+The lesson player requests course lessons and progress from the backend, then selects the next lesson returned by that API. The Next Lesson or Complete Course action marks the current lesson complete before advancing or returning to My Courses.
+
+Enrollment and completion depend on backend responses. The current player resumes by lesson, not by a saved playback timestamp. Its “through course” indicator reflects the selected lesson's position; completion percentages on the dashboard and My Courses come from the backend.
+
+## API Integration
+
+| API area | Frontend usage |
+| --- | --- |
+| `/api/auth` | Registration, login, Google authentication, profile, password, and account operations |
+| `/api/health` | Backend availability check |
+| `/api/courses` | Public course catalog, course details, and protected lessons |
+| `/api/categories` | Categories for instructor course forms |
+| `/api/enrollment` | Enrollment, enrolled courses, and lesson/course progress |
+| `/api/dashboard` | Learner dashboard |
+| `/api/instructor` | Instructor dashboard, courses, and lessons |
+| `/api/admin` | Platform statistics, user roles, instructor approvals, courses, and lessons |
+
+See the [backend repository](https://github.com/Vishwam27/LMS-PROJECT-BACKEND) for the server implementation and setup.
+## Author
+
+**Vishwam Patel** — Computer Engineering Graduate and Full-Stack Developer.

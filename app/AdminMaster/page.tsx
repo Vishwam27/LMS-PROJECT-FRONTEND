@@ -263,7 +263,7 @@ export default function AdminPage() {
 
           <button
             onClick={() =>
-              router.push("/")
+              router.push("/Login")
             }
             className="mt-6 rounded-xl bg-[#6c3bff] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5d32e8]"
           >

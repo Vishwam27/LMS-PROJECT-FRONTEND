@@ -196,7 +196,7 @@ export default function HomePage() {
               <h1 className="text-4xl font-black leading-[1.02] sm:text-6xl lg:text-7xl tracking-[-0.045em] sm:text-6xl lg:text-7xl">
                 Build skills.
                 <span className="block bg-gradient-to-r from-[#6c3bff] via-violet-400 to-sky-400 bg-clip-text text-transparent">
-                  Shape what's next.
+                  Shape what&apos;s next.
                 </span>
               </h1>
               <p className="mt-6 max-w-xl text-sm leading-7 sm:mt-7 sm:text-lg sm:leading-8 text-slate-500 sm:text-lg">
@@ -693,7 +693,7 @@ export default function HomePage() {
             <span className="font-bold text-[#0f1428]">CourseMaster</span>
           </div>
           <p className="text-xs text-slate-400">
-            © {new Date().getFullYear()} CourseMaster. Learn what's next.
+            © {new Date().getFullYear()} CourseMaster. Learn what&apos;s next.
           </p>
           <div className="flex gap-6 text-xs text-slate-400">
             <span>Privacy</span>
@@ -717,21 +717,6 @@ function Stat({
     <div>
       <p className="text-3xl font-black text-[#6c3bff]">{value}</p>
       <p className="mt-1 text-xs text-slate-400">{label}</p>
-    </div>
-  );
-}
-
-function MiniStat({
-  value,
-  label,
-}: {
-  value: string;
-  label: string;
-}) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-      <p className="text-lg font-black text-[#0f1428]">{value}</p>
-      <p className="text-[8px] text-slate-400">{label}</p>
     </div>
   );
 }
