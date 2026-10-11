@@ -211,7 +211,7 @@ export default function RegisterPage() {
       setSuccessMessage(data.message || "Registration successful!");
       setError("");
       setTimeout(() => {
-        router.push("/Login");
+        router.push(`/Login?email=${encodeURIComponent(email.trim())}`);
       }, 2000);
     } catch (err) {
       console.error("Registration error:", err);

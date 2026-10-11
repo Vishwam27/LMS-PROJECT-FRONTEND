@@ -883,7 +883,7 @@ export default function SettingsPage() {
                   </button>
                   {/* CHANGE PASSWORD MODAL */}
                   {showPasswordModal && (
-                    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 px-4">
+                    <div className="fixed inset-0 z-9998 flex items-center justify-center bg-black/40 px-4">
                       <div
                         role="dialog"
                         aria-modal="true"
@@ -1039,7 +1039,7 @@ export default function SettingsPage() {
                     Delete Account
                   </button>
                   {showDeleteModal && (
-                    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+                    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 px-4">
                       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
                           <span className="text-xl">⚠️</span>

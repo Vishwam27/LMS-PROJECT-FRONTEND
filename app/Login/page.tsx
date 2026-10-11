@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AuthPanel from "../components/AuthPanel";
 import { useAuth } from "../context/AuthContent";
 import BackendStatus from "../components/BackendStatus";
@@ -18,10 +18,19 @@ type AuthUser = {
 };
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, logout } = useAuth();
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => searchParams.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -143,6 +152,7 @@ export default function LoginPage() {
 
             <input
               type="email"
+              autoComplete="username"
               placeholder="demo@company.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -164,6 +174,8 @@ export default function LoginPage() {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                autoFocus={Boolean(searchParams.get("email"))}
                 placeholder="••••••••"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
