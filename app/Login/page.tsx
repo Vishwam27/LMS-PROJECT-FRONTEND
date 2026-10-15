@@ -7,6 +7,7 @@ import AuthPanel from "../components/AuthPanel";
 import { useAuth } from "../context/AuthContent";
 import BackendStatus from "../components/BackendStatus";
 import GoogleAuthButton from "../components/GoogleAuthButton";
+import GitHubLink from "../components/GitHubLink";
 
 
 type Role = "STUDENT" | "INSTRUCTOR" | "ADMIN";
@@ -243,6 +244,9 @@ function LoginForm() {
             Create a free account
           </Link>
         </p>
+      </div>
+      <div className="mt-6 flex justify-center">
+        <GitHubLink href="https://github.com/Vishwam27/LMS-PROJECT-FRONTEND.git" />
       </div>
     </AuthPanel>
   );

@@ -4,6 +4,7 @@ import CourseDataProvider from "./components/home/CourseDataProvider";
 import CoursePreview from "./components/home/CoursePreview";
 import CourseStats from "./components/home/CourseStats";
 import { BookMiniIcon } from "./components/home/HomeIcons";
+import GitHubLink from "./components/GitHubLink";
 
 const FEATURES = [
   {
@@ -73,6 +74,9 @@ export default function HomePage() {
               How it works
             </a>
           </nav>
+           <div className="flex items-center gap-2 sm:gap-3">
+              <GitHubLink  href="https://github.com/Vishwam27/LMS-PROJECT-FRONTEND.git" />
+           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/Login"

@@ -82,6 +82,7 @@ export default function AuthPanel({ children }: AuthPanelProps) {
           <Image
             src="https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?w=900&h=560&fit=crop&auto=format"
             alt="Student learning online"
+            loading="eager"
             width={900}
             height={560}
             unoptimized
