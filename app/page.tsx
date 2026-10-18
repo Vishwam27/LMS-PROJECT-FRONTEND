@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FileDown } from "lucide-react";
 import CourseCards from "./components/home/CourseCards";
 import CourseDataProvider from "./components/home/CourseDataProvider";
 import CoursePreview from "./components/home/CoursePreview";
@@ -60,7 +61,7 @@ export default function HomePage() {
               Course<span className="text-[#6c3bff]">Master</span>
             </span>
           </Link>
-          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-500 md:flex">
+          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-500 lg:flex">
             <a href="#features" className="transition hover:text-[#0f1428]">
               Features
             </a>
@@ -74,10 +75,19 @@ export default function HomePage() {
               How it works
             </a>
           </nav>
-           <div className="flex items-center gap-2 sm:gap-3">
-              <GitHubLink  href="https://github.com/Vishwam27/LMS-PROJECT-FRONTEND.git" />
-           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <GitHubLink href="https://github.com/Vishwam27/LMS-PROJECT-FRONTEND.git" />
+            <a
+              href="/Vishwam_Patel_Resume.pdf"
+              download="Vishwam_Patel_Resume.pdf"
+              aria-label="Download Vishwam Patel's resume (PDF)"
+              title="Download Vishwam Patel's resume (PDF)"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-colors hover:border-violet-200 hover:bg-violet-50 hover:text-[#6c3bff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6c3bff] focus-visible:ring-offset-2"
+            >
+              <FileDown size={22} aria-hidden="true" focusable="false" />
+            </a>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Link
               href="/Login"
               className="rounded-xl px-2 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-[#0f1428] sm:px-4 sm:py-2.5 sm:text-sm"
