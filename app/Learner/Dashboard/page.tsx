@@ -301,10 +301,10 @@ useEffect(() => {
             {/* =================================================
                 STATS
             ================================================== */}
-            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
 
               {/* Enrolled */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-lg">
                     📚
@@ -316,7 +316,7 @@ useEffect(() => {
                 </div>
 
                 <p
-                  className="mt-4 text-2xl font-bold text-[#0f1428]"
+                  className="mt-3 text-xl font-bold text-[#0f1428] sm:mt-4 sm:text-2xl"
                   style={{
                     fontFamily: "Outfit, sans-serif",
                   }}
@@ -324,13 +324,13 @@ useEffect(() => {
                   {stats.coursesEnrolled}
                 </p>
 
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
                   Courses Enrolled
                 </p>
               </div>
 
               {/* Completed */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-lg">
                     ✅
@@ -342,7 +342,7 @@ useEffect(() => {
                 </div>
 
                 <p
-                  className="mt-4 text-2xl font-bold text-[#0f1428]"
+                  className="mt-3 text-xl font-bold text-[#0f1428] sm:mt-4 sm:text-2xl"
                   style={{
                     fontFamily: "Outfit, sans-serif",
                   }}
@@ -350,13 +350,13 @@ useEffect(() => {
                   {stats.completedCourses}
                 </p>
 
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
                   Completed Courses
                 </p>
               </div>
 
               {/* In Progress */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-lg">
                     ▶
@@ -368,7 +368,7 @@ useEffect(() => {
                 </div>
 
                 <p
-                  className="mt-4 text-2xl font-bold text-[#0f1428]"
+                  className="mt-3 text-xl font-bold text-[#0f1428] sm:mt-4 sm:text-2xl"
                   style={{
                     fontFamily: "Outfit, sans-serif",
                   }}
@@ -376,13 +376,13 @@ useEffect(() => {
                   {stats.inProgressCourses}
                 </p>
 
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
                   In Progress
                 </p>
               </div>
 
               {/* Overall Progress */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-lg">
                     📈
@@ -394,7 +394,7 @@ useEffect(() => {
                 </div>
 
                 <p
-                  className="mt-4 text-2xl font-bold text-[#0f1428]"
+                  className="mt-3 text-xl font-bold text-[#0f1428] sm:mt-4 sm:text-2xl"
                   style={{
                     fontFamily: "Outfit, sans-serif",
                   }}
@@ -402,7 +402,7 @@ useEffect(() => {
                   {stats.overallProgress}%
                 </p>
 
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
                   Overall Progress
                 </p>
               </div>

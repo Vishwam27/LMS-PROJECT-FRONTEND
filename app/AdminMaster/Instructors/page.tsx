@@ -308,7 +308,7 @@ export default function AdminInstructorsPage() {
       ====================================================== */}
 
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
           <div>
             <button
               onClick={() => router.push("/AdminMaster")}
@@ -318,7 +318,7 @@ export default function AdminInstructorsPage() {
             </button>
 
             <h1
-              className="text-2xl font-bold text-[#0f1428] sm:text-3xl"
+              className="text-xl font-bold text-[#0f1428] sm:text-3xl"
               style={{
                 fontFamily: "Outfit, sans-serif",
               }}
@@ -326,7 +326,7 @@ export default function AdminInstructorsPage() {
               Instructor Requests
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
               Review and manage instructor applications.
             </p>
           </div>
@@ -341,17 +341,17 @@ export default function AdminInstructorsPage() {
           MAIN
       ====================================================== */}
 
-      <main className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
 
         {/* Summary */}
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs text-slate-400">
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+            <p className="text-[11px] text-slate-400 sm:text-xs">
               Pending Requests
             </p>
 
             <p
-              className="mt-2 text-3xl font-bold text-[#6c3bff]"
+              className="mt-2 text-2xl font-bold text-[#6c3bff] sm:text-3xl"
               style={{
                 fontFamily: "Outfit, sans-serif",
               }}
@@ -360,13 +360,13 @@ export default function AdminInstructorsPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs text-slate-400">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+            <p className="text-[11px] text-slate-400 sm:text-xs">
               Awaiting Review
             </p>
 
             <p
-              className="mt-2 text-3xl font-bold text-orange-500"
+              className="mt-2 text-2xl font-bold text-orange-500 sm:text-3xl"
               style={{
                 fontFamily: "Outfit, sans-serif",
               }}
@@ -375,13 +375,13 @@ export default function AdminInstructorsPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs text-slate-400">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+            <p className="text-[11px] text-slate-400 sm:text-xs">
               Account Type
             </p>
 
             <p
-              className="mt-2 text-lg font-bold text-[#0f1428]"
+              className="mt-2 text-base font-bold text-[#0f1428] sm:text-lg"
               style={{
                 fontFamily: "Outfit, sans-serif",
               }}
@@ -392,10 +392,10 @@ export default function AdminInstructorsPage() {
         </section>
 
         {/* Requests */}
-        <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white sm:mt-6">
 
           {/* Section heading */}
-          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 sm:px-8">
+          <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 lg:px-8">
             <div>
               <h2
                 className="text-lg font-bold text-[#0f1428]"
@@ -406,13 +406,13 @@ export default function AdminInstructorsPage() {
                 Pending Applications
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                 Approve trusted instructors or reject
                 applications you do not want to accept.
               </p>
             </div>
 
-            <span className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-600">
+            <span className="w-fit rounded-full bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-600">
               {instructors.length} Pending
             </span>
           </div>
@@ -436,7 +436,7 @@ export default function AdminInstructorsPage() {
           ) : (
             <>
               {/* Desktop */}
-              <div className="hidden overflow-x-auto md:block">
+              <div className="hidden overflow-x-auto lg:block">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50">
@@ -554,7 +554,7 @@ export default function AdminInstructorsPage() {
               </div>
 
               {/* Mobile */}
-              <div className="divide-y divide-slate-100 md:hidden">
+              <div className="divide-y divide-slate-100 lg:hidden">
                 {instructors.map((instructor) => (
                   <article
                     key={instructor.id}

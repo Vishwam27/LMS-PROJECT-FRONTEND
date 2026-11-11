@@ -324,14 +324,14 @@ export default function AdminPage() {
       ====================================================== */}
 
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
-          <div>
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:gap-4 sm:px-6 lg:px-8">
+          <div className="min-w-0">
             <p className="text-sm font-medium text-[#6c3bff]">
               CourseMaster
             </p>
 
             <h1
-              className="mt-1 text-2xl font-bold text-[#0f1428] sm:text-3xl"
+              className="mt-1 text-xl font-bold text-[#0f1428] sm:text-3xl"
               style={{
                 fontFamily: "Outfit, sans-serif",
               }}
@@ -339,12 +339,12 @@ export default function AdminPage() {
               Admin Dashboard
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
               Manage users, instructors and courses.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <span className="hidden rounded-full bg-purple-50 px-3 py-1.5 text-xs font-semibold text-[#6c3bff] sm:inline-block">
               ADMIN
             </span>
@@ -355,13 +355,14 @@ export default function AdminPage() {
                 setPasswordMessage("");
                 setShowPasswordModal(true);
               }}
-              className="rounded-xl border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-500 transition hover:bg-purple-50"
+              className="rounded-xl border border-purple-200 bg-white px-2.5 py-2 text-[10px] font-semibold text-purple-500 transition hover:bg-purple-50 sm:px-4 sm:text-sm"
             >
-              Change Password
+              <span className="sm:hidden">Password</span>
+              <span className="hidden sm:inline">Change Password</span>
             </button>
             <button
               onClick={handleLogout}
-              className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50"
+              className="rounded-xl border border-red-200 bg-white px-2.5 py-2 text-[10px] font-semibold text-red-500 transition hover:bg-red-50 sm:px-4 sm:text-sm"
             >
               Logout
             </button>
@@ -373,7 +374,7 @@ export default function AdminPage() {
           MAIN
       ====================================================== */}
 
-      <main className="mx-auto max-w-7xl px-5 py-7 lg:px-8 lg:py-8">
+      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
 
         {/* =================================================
             OVERVIEW
@@ -394,26 +395,26 @@ export default function AdminPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
             {statCards.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-sm"
+                className="rounded-2xl border border-slate-200 bg-white p-3 transition hover:shadow-sm sm:p-5"
               >
                 <div className="flex items-start justify-between">
                   <div
-                    className={`flex h-11 w-11 items-center justify-center rounded-xl ${stat.bg} text-lg`}
+                    className={`flex h-9 w-9 items-center justify-center rounded-xl ${stat.bg} text-base sm:h-11 sm:w-11 sm:text-lg`}
                   >
                     {stat.icon}
                   </div>
 
-                  <span className="text-xs font-semibold text-green-600">
+                  <span className="text-[10px] font-semibold text-green-600 sm:text-xs">
                     Live
                   </span>
                 </div>
 
                 <p
-                  className="mt-5 text-3xl font-bold text-[#0f1428]"
+                  className="mt-4 text-2xl font-bold text-[#0f1428] sm:mt-5 sm:text-3xl"
                   style={{
                     fontFamily: "Outfit, sans-serif",
                   }}
@@ -421,7 +422,7 @@ export default function AdminPage() {
                   {stat.value}
                 </p>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                   {stat.label}
                 </p>
               </div>
@@ -449,7 +450,7 @@ export default function AdminPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
 
             {/* USERS */}
 
@@ -457,7 +458,7 @@ export default function AdminPage() {
               onClick={() =>
                 router.push("/AdminMaster/Users")
               }
-              className="rounded-2xl border border-slate-200 bg-white p-6 text-left transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md"
+              className="rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md sm:p-6"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-lg">
                 👥
@@ -483,7 +484,7 @@ export default function AdminPage() {
               onClick={() =>
                 router.push("/AdminMaster/Courses")
               }
-              className="rounded-2xl border border-slate-200 bg-white p-6 text-left transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md"
+              className="rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md sm:p-6"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-lg">
                 📚
@@ -509,7 +510,7 @@ export default function AdminPage() {
               onClick={() =>
                 router.push("/AdminMaster/Instructors")
               }
-              className="rounded-2xl border border-slate-200 bg-white p-6 text-left transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md"
+              className="rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md sm:p-6"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-lg">
                 👨‍🏫
@@ -535,7 +536,7 @@ export default function AdminPage() {
             SYSTEM STATUS
         ================================================== */}
 
-        <section className="mt-9 rounded-2xl border border-purple-100 bg-purple-50 p-5">
+        <section className="mt-7 rounded-2xl border border-purple-100 bg-purple-50 p-4 sm:mt-9 sm:p-5">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white">
               🔐
@@ -557,7 +558,7 @@ export default function AdminPage() {
       </main>
       {/* CHANGE PASSWORD MODAL */}
       {showPasswordModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 px-4">
           <div
             role="dialog"
             aria-modal="true"

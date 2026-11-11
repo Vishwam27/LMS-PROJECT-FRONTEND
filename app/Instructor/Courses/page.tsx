@@ -231,7 +231,7 @@ export default function InstructorCoursesPage() {
       ====================================================== */}
 
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:gap-4 sm:px-5 lg:px-8">
           <div>
             <button
               onClick={() =>
@@ -243,7 +243,7 @@ export default function InstructorCoursesPage() {
             </button>
 
             <h1
-              className="text-2xl font-bold text-[#0f1428] sm:text-3xl"
+              className="text-xl font-bold text-[#0f1428] sm:text-3xl"
               style={{
                 fontFamily: "Outfit, sans-serif",
               }}
@@ -269,7 +269,7 @@ export default function InstructorCoursesPage() {
           MAIN
       ====================================================== */}
 
-      <main className="mx-auto max-w-7xl px-5 py-6 lg:px-8 lg:py-8">
+      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
 
         {/* Course count */}
         <div className="mb-5 flex items-center justify-between">
@@ -326,7 +326,7 @@ export default function InstructorCoursesPage() {
              COURSE LIST
           ================================================== */
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
             {courses.map((course) => (
               <article
                 key={course.id}
@@ -338,7 +338,7 @@ export default function InstructorCoursesPage() {
                 className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md"
               >
                 {/* Image */}
-                <div className="relative h-40 overflow-hidden bg-slate-100">
+                <div className="relative h-36 overflow-hidden bg-slate-100 sm:h-40">
                   {course.imageUrl ? (
                     <CldImage
                       src={course.imageUrl}
@@ -370,7 +370,7 @@ export default function InstructorCoursesPage() {
                 </div>
 
                 {/* Content */}
-                <div className="p-5">
+                <div className="p-4 sm:p-5">
                   <p className="text-xs font-semibold text-[#6c3bff]">
                     {course.category?.name ||
                       "Uncategorized"}

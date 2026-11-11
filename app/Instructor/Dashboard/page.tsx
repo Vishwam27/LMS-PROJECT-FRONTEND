@@ -344,10 +344,10 @@ export default function InstructorDashboardPage() {
       ====================================================== */}
 
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4 lg:px-8">
           {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-[#6c3bff] to-[#8a5fff] text-white shadow-sm">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#6c3bff] to-[#8a5fff] text-white shadow-sm sm:h-10 sm:w-10">
               <svg
                 width="18"
                 height="18"
@@ -364,7 +364,7 @@ export default function InstructorDashboardPage() {
 
             <div>
               <p
-                className="text-lg font-bold text-[#0f1428]"
+                className="text-base font-bold text-[#0f1428] sm:text-lg"
                 style={{
                   fontFamily: "Outfit, sans-serif",
                 }}
@@ -372,14 +372,14 @@ export default function InstructorDashboardPage() {
                 CourseMaster
               </p>
 
-              <p className="text-[11px] font-medium text-[#6c3bff]">
+              <p className="hidden text-[11px] font-medium text-[#6c3bff] sm:block">
                 Instructor Panel
               </p>
             </div>
           </div>
 
           {/* Instructor */}
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <div className="hidden text-right sm:block">
               <p className="text-sm font-semibold text-[#0f1428]">
                 {instructor.name}
@@ -390,7 +390,7 @@ export default function InstructorDashboardPage() {
               </p>
             </div>
 
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-purple-100">
+            <div className="hidden h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-purple-100 sm:flex">
               {instructor.avatarUrl ? (
                 <Image
                   src={instructor.avatarUrl}
@@ -409,7 +409,7 @@ export default function InstructorDashboardPage() {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {/* View Learner Side */}
               <button
                 onClick={() => router.push("/Learner/Dashboard")}
@@ -424,14 +424,15 @@ export default function InstructorDashboardPage() {
                   setPasswordMessage("");
                   setShowPasswordModal(true);
                 }}
-                className="rounded-xl border border-purple-200 px-4 py-2.5 text-xs font-semibold text-[#6c3bff] transition hover:bg-purple-50">
-                Change Password
+                className="rounded-xl border border-purple-200 px-2.5 py-2 text-[10px] font-semibold text-[#6c3bff] transition hover:bg-purple-50 sm:px-4 sm:py-2.5 sm:text-xs">
+                <span className="sm:hidden">Password</span>
+                <span className="hidden sm:inline">Change Password</span>
               </button>
 
               {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="rounded-xl border border-purple-200 px-4 py-2.5 text-xs font-semibold text-[#6c3bff] transition hover:bg-purple-50"
+                className="rounded-xl border border-purple-200 px-2.5 py-2 text-[10px] font-semibold text-[#6c3bff] transition hover:bg-purple-50 sm:px-4 sm:py-2.5 sm:text-xs"
               >
                 Logout
               </button>
@@ -444,7 +445,7 @@ export default function InstructorDashboardPage() {
           MAIN
       ====================================================== */}
 
-      <main className="mx-auto max-w-7xl px-5 py-6 lg:px-8 lg:py-8">
+      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
 
         {/* Welcome */}
         <section className="mb-6">
@@ -453,7 +454,7 @@ export default function InstructorDashboardPage() {
           </p>
 
           <h1
-            className="mt-1 text-2xl font-bold text-[#0f1428] sm:text-3xl"
+            className="mt-1 wrap-break-word text-xl font-bold text-[#0f1428] sm:text-3xl"
             style={{
               fontFamily: "Outfit, sans-serif",
             }}
@@ -471,18 +472,18 @@ export default function InstructorDashboardPage() {
             STATS
         ================================================== */}
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
 
           {/* Total Courses */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-400">
+                <p className="text-[11px] font-medium text-slate-400 sm:text-xs">
                   Total Courses
                 </p>
 
                 <p
-                  className="mt-2 text-3xl font-bold text-[#0f1428]"
+                  className="mt-2 text-2xl font-bold text-[#0f1428] sm:text-3xl"
                   style={{
                     fontFamily: "Outfit, sans-serif",
                   }}
@@ -490,27 +491,27 @@ export default function InstructorDashboardPage() {
                   {stats.totalCourses}
                 </p>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-[10px] text-slate-400 sm:text-xs">
                   All courses created
                 </p>
               </div>
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-[#6c3bff]">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#6c3bff] sm:h-11 sm:w-11">
                 📚
               </div>
             </div>
           </div>
 
           {/* Published Courses */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-400">
+                <p className="text-[11px] font-medium text-slate-400 sm:text-xs">
                   Published Courses
                 </p>
 
                 <p
-                  className="mt-2 text-3xl font-bold text-green-600"
+                  className="mt-2 text-2xl font-bold text-green-600 sm:text-3xl"
                   style={{
                     fontFamily: "Outfit, sans-serif",
                   }}
@@ -518,27 +519,27 @@ export default function InstructorDashboardPage() {
                   {stats.publishedCourses}
                 </p>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-[10px] text-slate-400 sm:text-xs">
                   Courses currently live
                 </p>
               </div>
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-600">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-600 sm:h-11 sm:w-11">
                 ✓
               </div>
             </div>
           </div>
 
           {/* Students */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-400">
+                <p className="text-[11px] font-medium text-slate-400 sm:text-xs">
                   Total Students
                 </p>
 
                 <p
-                  className="mt-2 text-3xl font-bold text-blue-600"
+                  className="mt-2 text-2xl font-bold text-blue-600 sm:text-3xl"
                   style={{
                     fontFamily: "Outfit, sans-serif",
                   }}
@@ -546,27 +547,27 @@ export default function InstructorDashboardPage() {
                   {stats.totalStudents}
                 </p>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-[10px] text-slate-400 sm:text-xs">
                   Across your courses
                 </p>
               </div>
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 sm:h-11 sm:w-11">
                 👥
               </div>
             </div>
           </div>
 
           {/* Lessons */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-400">
+                <p className="text-[11px] font-medium text-slate-400 sm:text-xs">
                   Total Lessons
                 </p>
 
                 <p
-                  className="mt-2 text-3xl font-bold text-[#6c3bff]"
+                  className="mt-2 text-2xl font-bold text-[#6c3bff] sm:text-3xl"
                   style={{
                     fontFamily: "Outfit, sans-serif",
                   }}
@@ -574,12 +575,12 @@ export default function InstructorDashboardPage() {
                   {stats.totalLessons}
                 </p>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-[10px] text-slate-400 sm:text-xs">
                   Lessons created
                 </p>
               </div>
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-[#6c3bff]">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-[#6c3bff] sm:h-11 sm:w-11">
                 ▶
               </div>
             </div>
@@ -590,7 +591,7 @@ export default function InstructorDashboardPage() {
             MY COURSES
         ================================================== */}
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 sm:mt-6 sm:p-6">
 
           <div className="mb-5">
             <div>
@@ -625,7 +626,7 @@ export default function InstructorDashboardPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {courses.slice(0, 4).map((course) => (
                 <article
                   key={course.id}
@@ -728,10 +729,10 @@ export default function InstructorDashboardPage() {
             BOTTOM ACTIONS
         ================================================== */}
 
-        <section className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <section className="mt-5 grid grid-cols-1 gap-4 sm:mt-6 lg:grid-cols-2">
 
           {/* Create Course */}
-          <div className="rounded-2xl border border-purple-100 bg-linear-to-br from-purple-50 to-white p-6">
+          <div className="rounded-2xl border border-purple-100 bg-linear-to-br from-purple-50 to-white p-4 sm:p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-100 text-xl text-[#6c3bff]">
@@ -767,7 +768,7 @@ export default function InstructorDashboardPage() {
           </div>
 
           {/* Manage Courses */}
-          <div className="rounded-2xl border border-blue-100 bg-linear-to-br from-blue-50 to-white p-6">
+          <div className="rounded-2xl border border-blue-100 bg-linear-to-br from-blue-50 to-white p-4 sm:p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-xl text-blue-600">
@@ -805,7 +806,7 @@ export default function InstructorDashboardPage() {
       </main>
       {/* CHANGE PASSWORD MODAL */}
       {showPasswordModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 px-4">
           <div
             role="dialog"
             aria-modal="true"

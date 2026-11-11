@@ -441,7 +441,7 @@ export default function AdminUsersPage() {
     >
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
           <div>
             <button
               onClick={() => router.push("/AdminMaster")}
@@ -451,7 +451,7 @@ export default function AdminUsersPage() {
             </button>
 
             <h1
-              className="text-2xl font-bold text-[#0f1428] sm:text-3xl"
+              className="text-xl font-bold text-[#0f1428] sm:text-3xl"
               style={{
                 fontFamily: "Outfit, sans-serif",
               }}
@@ -459,7 +459,7 @@ export default function AdminUsersPage() {
               Users
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
               View all users in CourseMaster.
             </p>
           </div>
@@ -472,16 +472,16 @@ export default function AdminUsersPage() {
       <main>
 
         {/* Main */}
-        <main className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+        <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
           {/* Summary */}
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-xs text-slate-400">
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+              <p className="text-[11px] text-slate-400 sm:text-xs">
                 Total Users
               </p>
 
               <p
-                className="mt-2 text-2xl font-bold text-[#0f1428]"
+                className="mt-2 text-xl font-bold text-[#0f1428] sm:text-2xl"
                 style={{
                   fontFamily: "Outfit, sans-serif",
                 }}
@@ -490,13 +490,13 @@ export default function AdminUsersPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-xs text-slate-400">
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+              <p className="text-[11px] text-slate-400 sm:text-xs">
                 Students
               </p>
 
               <p
-                className="mt-2 text-2xl font-bold text-[#0f1428]"
+                className="mt-2 text-xl font-bold text-[#0f1428] sm:text-2xl"
                 style={{
                   fontFamily: "Outfit, sans-serif",
                 }}
@@ -509,13 +509,13 @@ export default function AdminUsersPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-xs text-slate-400">
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+              <p className="text-[11px] text-slate-400 sm:text-xs">
                 Instructors
               </p>
 
               <p
-                className="mt-2 text-2xl font-bold text-[#0f1428]"
+                className="mt-2 text-xl font-bold text-[#0f1428] sm:text-2xl"
                 style={{
                   fontFamily: "Outfit, sans-serif",
                 }}
@@ -532,8 +532,8 @@ export default function AdminUsersPage() {
 
           {/* Filters */}
           <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="relative w-full md:max-w-md">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="relative w-full lg:max-w-md">
                 <svg
                   className="absolute left-3 top-1/2 -translate-y-1/2"
                   width="16"
@@ -567,7 +567,7 @@ export default function AdminUsersPage() {
                     | UserRole
                   )
                 }
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600 outline-none focus:border-[#6c3bff]"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600 outline-none focus:border-[#6c3bff] lg:w-auto"
               >
                 <option value="ALL">
                   All Roles
@@ -596,7 +596,7 @@ export default function AdminUsersPage() {
           {/* Users table */}
           <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
             {/* Desktop */}
-            <div className="hidden overflow-x-auto md:block">
+            <div className="hidden overflow-x-auto lg:block">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50">
@@ -721,7 +721,7 @@ export default function AdminUsersPage() {
             </div>
 
             {/* Mobile */}
-            <div className="divide-y divide-slate-100 md:hidden">
+            <div className="divide-y divide-slate-100 lg:hidden">
               {filteredUsers.map((user) => (
                 <div
                   key={user.id}

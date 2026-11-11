@@ -361,7 +361,7 @@ export default function AdminCourseDetailsPage() {
       ====================================================== */}
 
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
           <div>
             <button
               onClick={() =>
@@ -373,7 +373,7 @@ export default function AdminCourseDetailsPage() {
             </button>
 
             <h1
-              className="text-2xl font-bold text-[#0f1428] sm:text-3xl"
+              className="text-xl font-bold text-[#0f1428] sm:text-3xl"
               style={{
                 fontFamily: "Outfit, sans-serif",
               }}
@@ -381,7 +381,7 @@ export default function AdminCourseDetailsPage() {
               Course Details
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
               Review course information and content.
             </p>
           </div>
@@ -396,7 +396,7 @@ export default function AdminCourseDetailsPage() {
           MAIN
       ====================================================== */}
 
-      <main className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
 
         {/* =================================================
             COURSE INFORMATION
@@ -425,7 +425,7 @@ export default function AdminCourseDetailsPage() {
             </div>
 
             {/* Details */}
-            <div className="p-6 sm:p-8">
+            <div className="p-4 sm:p-8">
               <div className="flex flex-wrap items-center gap-2">
                 {course.category && (
                   <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-[#6c3bff]">
@@ -449,7 +449,7 @@ export default function AdminCourseDetailsPage() {
               </div>
 
               <h2
-                className="mt-4 text-2xl font-bold text-[#0f1428] sm:text-3xl"
+                className="mt-4 wrap-break-word text-xl font-bold text-[#0f1428] sm:text-3xl"
                 style={{
                   fontFamily: "Outfit, sans-serif",
                 }}
@@ -462,7 +462,7 @@ export default function AdminCourseDetailsPage() {
               </p>
 
               {/* Course metadata */}
-              <div className="mt-7 grid grid-cols-2 gap-5 sm:grid-cols-4">
+              <div className="mt-6 grid grid-cols-2 gap-4 sm:mt-7 sm:gap-5 lg:grid-cols-4">
                 <div>
                   <p className="text-xs text-slate-400">
                     Duration
@@ -546,7 +546,7 @@ export default function AdminCourseDetailsPage() {
         ================================================== */}
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white">
-          <div className="border-b border-slate-200 px-6 py-5 sm:px-8">
+          <div className="border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2
@@ -592,7 +592,7 @@ export default function AdminCourseDetailsPage() {
               {course.lessons.map((lesson) => (
                 <div
                   key={lesson.id}
-                  className="px-6 py-5 sm:px-8"
+                  className="px-4 py-4 sm:px-6 sm:py-5 lg:px-8"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 

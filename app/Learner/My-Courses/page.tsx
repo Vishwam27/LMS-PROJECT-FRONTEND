@@ -437,52 +437,52 @@ export default function MyCoursesPage() {
                 SUMMARY
             ================================================= */}
 
-            <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
 
               {/* Total */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs text-slate-400">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+                <p className="text-[11px] text-slate-400 sm:text-xs">
                   Total Enrolled
                 </p>
 
-                <p className="mt-1 text-2xl font-bold text-[#0f1428]">
+                <p className="mt-1 text-xl font-bold text-[#0f1428] sm:text-2xl">
                   {summary.totalEnrolled}
                 </p>
               </div>
 
               {/* Completed */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs text-slate-400">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+                <p className="text-[11px] text-slate-400 sm:text-xs">
                   Completed
                 </p>
 
-                <p className="mt-1 text-2xl font-bold text-green-600">
+                <p className="mt-1 text-xl font-bold text-green-600 sm:text-2xl">
                   {summary.completed}
                 </p>
               </div>
 
               {/* In Progress */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs text-slate-400">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+                <p className="text-[11px] text-slate-400 sm:text-xs">
                   In Progress
                 </p>
 
-                <p className="mt-1 text-2xl font-bold text-[#6c3bff]">
+                <p className="mt-1 text-xl font-bold text-[#6c3bff] sm:text-2xl">
                   {summary.inProgress}
                 </p>
               </div>
 
               {/* Not Started */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs text-slate-400">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5">
+                <p className="text-[11px] text-slate-400 sm:text-xs">
                   Not Started
                 </p>
 
-                <p className="mt-1 text-2xl font-bold text-slate-600">
+                <p className="mt-1 text-xl font-bold text-slate-600 sm:text-2xl">
                   {summary.notStarted}
                 </p>
               </div>
